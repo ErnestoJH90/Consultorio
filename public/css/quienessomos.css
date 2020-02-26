@@ -1,0 +1,97 @@
+*{
+	margin: 0;
+	padding: 0;
+	box-sizing: border-box ; 
+  }
+body {
+	background-image: url(/images/touch.png);
+	margin: 0px 300px 0px 0px;
+	background-repeat: no-repeat;
+	width: 100%;
+	height: 120%;
+    background-color: WHITE;
+    text-align: justify-all;
+    color: #17202A;
+	font-family: Arial, Helvetica, sans-serif;
+    
+	
+}
+.acoltzi{
+	margin: 50px 0px 0px 300px;
+	background-image:0px 0px 0px 0px;
+}
+#karla{
+	margin: -190px 0px 0px 830px;
+	background-image:0px 0px 0px 0px;
+}
+.dr{
+	margin:0px 0px 0px 250px;
+}
+.dra{
+	margin:-30px 0px 0px 800px;
+}
+.button{
+	background:rgb(247, 158, 158);
+	color:white;
+	display:inline-block;
+	font-size:1.25em;
+	margin:10px 0px 0px 245px;
+	padding:10px 0px;
+	text-align:center;
+	width:200px;
+	text-decoration:none;
+	box-shadow:0px 3px 0px rgb(188, 196, 195);
+	
+}
+.button2{
+	background:#538CA5;
+	color:white;
+	display:inline-block;
+	font-size:1.25em;
+	margin:0px 0px 0px 0px;
+	padding:10px 0px;
+	text-align:center;
+	width:200px;
+	text-decoration:none;
+	box-shadow:0px 3px 0px #A9F5F2;
+	
+}
+.button3{
+	background:#538CA5;
+	color:white;
+	display:inline-block;
+	font-size:1.25em;
+	margin:0px 0px 0px 0px;
+	padding:10px 0px;
+	text-align:center;
+	width:200px;
+	text-decoration:none;
+	box-shadow:0px 3px 0px #A9F5F2;
+	
+}
+.button4{
+	background:#538CA5;
+	color:white;
+	display:inline-block;
+	font-size:1.25em;
+	margin:0px 0px 0px 0px;
+	padding:10px 0px;
+	text-align:center;
+	width:200px;
+	text-decoration:none;
+	box-shadow:0px 3px 0px #A9F5F2;
+	
+}
+.button5{
+	background:#538CA5;
+	color:white;
+	display:inline-block;
+	font-size:1.25em;
+	margin:0px 0px 0px 0px;
+	padding:10px 0px;
+	text-align:center;
+	width:200px;
+	text-decoration:none;
+	box-shadow:0px 3px 0px #A9F5F2;
+	
+}

@@ -1,0 +1,6 @@
+projectKey=citas
+serverUrl=http://localhost:9000
+serverVersion=6.7.4.38452
+dashboardUrl=http://localhost:9000/dashboard/index/citas
+ceTaskId=AWrlFBFetnlMFdtApYX_
+ceTaskUrl=http://localhost:9000/api/ce/task?id=AWrlFBFetnlMFdtApYX_

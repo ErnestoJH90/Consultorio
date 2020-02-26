@@ -1,0 +1,88 @@
+BEGIN parsing of 7-annotated-vs-typehinted.php
+1:	<?php
+2:	
+3:	class A {
+4:		/**
+5:		 * @param int $x
+6:		 * @return int
+7:		 */
+8:		function annotatedMethod($x){ return 1; }
+9:	
+10:		function typeHintedMethod(int $x): int { return 1; }
+
+		function annotatedMethod($x){ return 1; }
+	                                   \_ HERE
+==== 8: notice: variable $x assigned but never used
+11:	}
+
+		function typeHintedMethod(int $x): int { return 1; }
+	                                        \_ HERE
+==== 10: notice: variable $x assigned but never used
+12:	
+13:	class B1 extends A {
+14:		/**
+15:		 * @param int $x
+16:		 * @return int
+17:		 */
+18:		function annotatedMethod($x){ return 1; }
+19:	
+20:		function typeHintedMethod(int $x): int { return 1; }
+
+		function annotatedMethod($x){ return 1; }
+	                                   \_ HERE
+==== 18: notice: variable $x assigned but never used
+21:	}
+
+		function typeHintedMethod(int $x): int { return 1; }
+	                                        \_ HERE
+==== 20: notice: variable $x assigned but never used
+22:	
+23:	class B2 extends A {
+24:		/*. int .*/ function annotatedMethod(int $x){ return 1; } // ERR
+25:	}
+
+		/*. int .*/ function annotatedMethod(int $x){ return 1; } // ERR
+	                                                   \_ HERE
+==== 24: notice: variable $x assigned but never used
+
+		/*. int .*/ function annotatedMethod(int $x){ return 1; } // ERR
+	                                            \_ HERE
+==== 24: ERROR: method B2::annotatedMethod with prototype
+	public int(*int*)
+	is not call-compatible with A::annotatedMethod with prototype
+	public int(int)
+	(argument no. 1: type-hinted argument must be annotated instead)
+26:	
+27:	class B3 extends A {
+28:		function annotatedMethod(/*. int .*/ $x): int { return 1; }
+29:	}
+
+		function annotatedMethod(/*. int .*/ $x): int { return 1; }
+	                                               \_ HERE
+==== 28: notice: variable $x assigned but never used
+30:	
+31:	class B4 extends A {
+32:		function typeHintedMethod(/*. int .*/ $x): int { return 1; } // OK
+33:	}
+
+		function typeHintedMethod(/*. int .*/ $x): int { return 1; } // OK
+	                                                \_ HERE
+==== 32: notice: variable $x assigned but never used
+34:	
+35:	class B5 extends A {
+36:		/*. int .*/ function typeHintedMethod(int $x){ return 1; } // ERR
+37:	}
+
+		/*. int .*/ function typeHintedMethod(int $x){ return 1; } // ERR
+	                                                    \_ HERE
+==== 36: notice: variable $x assigned but never used
+
+		/*. int .*/ function typeHintedMethod(int $x){ return 1; } // ERR
+	                                             \_ HERE
+==== 36: ERROR: method B5::typeHintedMethod with prototype
+	public int(*int*)
+	is not call-compatible with A::typeHintedMethod with prototype
+	public *int*(*int*)
+	(annotated return type must be type-hinted instead)
+END parsing of 7-annotated-vs-typehinted.php
+Overall test results: 2 errors, 0 warnings.

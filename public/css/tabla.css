@@ -1,0 +1,86 @@
+*{
+	box-sizing: border-box;
+}
+.tabla{
+border:1px solid;
+border-collapse:collapse;
+width:499px;
+margin:40px 0px 0px 100px;
+}
+.tabla td{
+	border:1px solid;
+	text-align:center;
+}
+.tabla td:hover{
+background-color:rgb(194, 232, 243);
+font-size:25px;
+
+}
+#Logo2{
+	margin:0px 0px -48px 575px;
+	height:248px;
+}
+.button{
+	background:rgb(4, 152, 189);
+	color:white;
+	display:inline-block;
+	font-size:1.25em;
+	margin:10px -480px 0px 500px;
+	padding:10px 0px;
+	text-align:center;
+	width:200px;
+	text-decoration:none;
+	box-shadow:0px 3px 0px #A9F5F2;
+	cursor: pointer;
+	
+}
+.button1{
+	background:#FA7474;
+	color:white;
+	display:inline-block;
+	font-size:1.25em;
+	margin:20px -480px 0px 500px;
+	padding:10px 0px;
+	text-align:center;
+	width:200px;
+	text-decoration:none;
+	box-shadow:0px 3px 0px #FA7474;
+	cursor: pointer;
+	
+}
+body{
+	margin: 0px;
+	font-family: sans-serif;
+	background-image: url(/images/pasillo.jpg);
+	background-repeat:no-repeat;
+}
+h1{
+	text-align: center;
+	color:black;
+}
+input[type="submit"]{
+    opacity: 0.8;
+}
+input[type="submit"]:hover {
+    opacity: 1;
+}
+input[type="reset"]{
+    opacity: 0.8;
+}
+input[type="reset"]:hover {
+    opacity: 1;
+}
+@media(max-width:900px){
+    form {
+        width:  80%;
+    }
+}
+@media(max-width:500){
+    form{
+        width: 95%;
+    }
+}
+.adj{
+	margin: 0px 0px 0px 550px;
+	color: black;
+}

@@ -1,0 +1,1217 @@
+BEGIN parsing of 5-general.php
+1:	<?php
+2:	
+3:	/**
+4:	 * PHPLint Test Program
+5:	 * @package PHPLintTest
+6:	 * @author Umberto Salsi
+7:	 * @copyright 2018 Umberto Salsi
+8:	 * @license http://www.icosaedro.it/phplint/manual.html?p=license BSD-style
+9:	 */
+10:	
+11:	
+12:	/*.
+13:		require_module 'core'; require_module 'file';
+14:	.*/
+15:	
+16:	/* Named constant cannot be a PHP nor PHPLint keyword: */
+17:	define("TRUE", "TRUE ");
+
+	define("TRUE", "TRUE ");
+	              \_ HERE
+==== 17: ERROR: constant name `TRUE' is a PHP keyword
+18:	define("true", 1);
+
+	define("true", 1);
+	              \_ HERE
+==== 18: ERROR: constant name `true' is a PHP keyword
+19:	define("TrUe", "TrUe ");
+
+	define("TrUe", "TrUe ");
+	              \_ HERE
+==== 19: ERROR: constant name `TrUe' is a PHP keyword
+20:	define("FALSE", "FALSE ");
+
+	define("FALSE", "FALSE ");
+	               \_ HERE
+==== 20: ERROR: constant name `FALSE' is a PHP keyword
+21:	define("define", "define ");
+
+	define("define", "define ");
+	                \_ HERE
+==== 21: ERROR: constant name `define' is a PHP keyword
+22:	define("const", "const ");
+
+	define("const", "const ");
+	               \_ HERE
+==== 22: ERROR: constant name `const' is a PHP keyword
+23:	define("function", "function ");
+
+	define("function", "function ");
+	                  \_ HERE
+==== 23: ERROR: constant name `function' is a PHP keyword
+24:	define("string", "string ");
+
+	define("string", "string ");
+	                \_ HERE
+==== 24: ERROR: constant name `string' is a PHP keyword
+25:	define("mixed", "mixed ");
+
+	define("mixed", "mixed ");
+	               \_ HERE
+==== 25: ERROR: constant name `mixed' is a PHP keyword
+26:	define("Define", "Define ");
+
+	define("Define", "Define ");
+	                \_ HERE
+==== 26: ERROR: constant name `Define' is a PHP keyword
+27:	define("Const", "Const ");
+
+	define("Const", "Const ");
+	               \_ HERE
+==== 27: ERROR: constant name `Const' is a PHP keyword
+28:	define("Function", "Function ");
+
+	define("Function", "Function ");
+	                  \_ HERE
+==== 28: ERROR: constant name `Function' is a PHP keyword
+29:	define("String", "String ");
+
+	define("String", "String ");
+	                \_ HERE
+==== 29: ERROR: constant name `String' is a PHP keyword
+30:	define("Mixed", "Mixed ");
+
+	define("Mixed", "Mixed ");
+	               \_ HERE
+==== 30: ERROR: constant name `Mixed' is a PHP keyword
+31:	
+32:	/* literals: */
+33:	
+34:	define("BOOL1",   false || true && (1&2^3|4) == 0);
+35:	define("INT1",     123*4.3);
+36:	define("INT2",    +123);
+37:	define("INT3",    -123);
+38:	define("INT4",    012);
+39:	define("INT5",    0x1Ff120);
+40:	define("FLOAT1",  1.234 + 12.34 * (-6e9) / (0.5e-34));
+41:	define("STRING1", "abc" . 'abc' . "a\000b\0x85");
+42:	define("STRING2", <<< EOT
+43:	EOT
+44:	. <<<EOT
+45:	Just a line.
+46:	EOT
+47:	. <<< EOT
+48:	Just two
+49:	lines.
+50:	EOT
+51:	);
+52:	define("STRING3", /*.(string).*/ NULL);
+53:	
+54:	/* arrays: */
+55:	$arr0 = array();
+
+	$arr0 = array();
+	                \_ HERE
+==== 55: notice: guessed variable's type mixed[] from bare empty array value.
+	Recommended either type declaration, example:
+		/*. string[int] .*/ $x = array(); // array of strings with int index
+	or formal typecast on empty array, examples:
+		$x = /*. (MyClass[string]) .*/ array(); // associative array of MyClass objects
+		$x = /*. (float[int][int]) .*/ array(); // matrix of floating-point numbers
+56:	$arr1 = array(1, 2, 3);
+57:	$arr2 = array("a", "b");
+58:	$arr3 = array(1=>111, 222, 3=>333);
+59:	$arr4 = array("a"=>"x", "b"=>"x"); # warn
+60:	$arr1[] = 4;
+61:	$arr1[4] = 4;
+62:	$arr2[4] = "d";
+63:	$arr3[4] = 4;
+64:	$arr4["4"] = "z";
+65:	$undef_arr1[1]["sss"] = 111;
+66:	$undef_arr2[1][123] = "aaa";
+67:	$i = $arr1[1]++ + ++$arr1[1];
+68:	
+69:	
+70:	/* operators: */
+71:	$i = 0;
+72:	$i++;
+73:	++$i;
+74:	$arr1[0]++;
+75:	++$arr1[0];
+76:	
+77:	
+78:	/* control structures: */
+79:	
+80:	if( true );
+81:	if( true ) ; else ;
+82:	if( true ) ; elseif( false ) ;
+83:	if( true ) ; elseif( false ) ; else ;
+84:	while( false ) ;
+
+	while( false ) ;
+	                \_ HERE
+==== 84: ERROR: unreachable statement
+85:	do break; while( false ) ;
+86:	for(;;) break;
+87:	for($i = 0; $i < 10; $i++) {break;}
+88:	for($i = 0, $j = 1;  $k = 2, $i < 10;  $i++) ;
+89:	foreach($arr2 as $v) continue;
+90:	foreach($arr2 as $k => $v) continue;
+91:	switch(1){
+92:	case 1: break;
+93:	case 2:
+94:	case 3: echo "hello";  break;
+95:	default:
+96:	}
+97:	
+98:	switch(1){
+99:		case 1:
+100:		case 2:
+101:		case 1:
+
+		case 1:
+	               \_ HERE
+==== 101: ERROR: duplicated `case' value: 1
+102:			echo 1;
+103:			break;
+104:		case "1":
+
+		case "1":
+	                 \_ HERE
+==== 104: ERROR: invalid type string for the `case' branch. Expected int
+
+		case "1":
+	                 \_ HERE
+==== 104: ERROR: duplicated `case' value: 1
+105:			echo 1;
+106:	}
+
+	}
+	 \_ HERE
+==== 106: Warning: missing `default:' branch in `switch'
+107:	
+108:	# Test double quoted strings with embedded variables:
+109:	$s = "" . "$i" . "@$i" . "$i@" . "$i$i$i" . "$i@$i@$i";
+110:	
+111:	# Test here-doc with embedded vars:
+112:	$s = <<< XXX
+113:	$i
+114:	XXX
+115:	. <<< XXX
+116:	   $i
+117:	XXX
+118:	. <<< ZZZ
+119:	$i $i
+120:	text
+121:	ZZZ;
+122:	
+123:	# Test here-doc with double-quoted label:
+124:	$s = <<< "XXX"
+125:	$i
+126:	XXX;
+127:	
+128:	# Test now-doc:
+129:	$s = <<< 'XXX'
+130:	?> ?> <? <?
+131:	XXX;
+132:	$s = <<< 'XXX'
+133:	XXX;
+134:	$s = <<< 'XXX'
+135:	XXX
+136:	;
+137:	
+138:	
+139:	/*. int .*/ function size_of_int()
+140:	{
+141:		$n = 1;
+142:		$x = 1;
+143:		while( is_int($x) ){ $n++; $x*=2; }
+144:		return $n;
+145:	}
+146:	echo "size of int = ", size_of_int(), " bits\n";
+147:	
+148:	if(true){
+149:		exit;
+150:		exit();
+
+		exit();
+	            \_ HERE
+==== 150: ERROR: unreachable statement
+151:		exit(0);
+
+		exit(0);
+	            \_ HERE
+==== 151: ERROR: unreachable statement
+152:		exit("xyz");
+
+		exit("xyz");
+	            \_ HERE
+==== 152: ERROR: unreachable statement
+153:		die;
+
+		die;
+	           \_ HERE
+==== 153: ERROR: unreachable statement
+154:		die();
+
+		die();
+	           \_ HERE
+==== 154: ERROR: unreachable statement
+155:		die(0);
+
+		die(0);
+	           \_ HERE
+==== 155: ERROR: unreachable statement
+156:		die("xyz");
+
+		die("xyz");
+	           \_ HERE
+==== 156: ERROR: unreachable statement
+157:	}
+158:	
+159:	
+160:	/* Passing arguments by ref.: */
+161:	
+162:	/*. void .*/ function set_string(/*. string .*/ &$s)
+
+	/*. void .*/ function set_string(/*. string .*/ &$s)
+	        \_ HERE
+==== 162: ERROR: unreachable statement
+163:	{
+164:		$s = "hello";
+165:		?>hello, world, today is <?= date("c") ?>
+166:	
+167:	<?
+
+	<?
+	\_ HERE
+==== 167: Warning: using deprecated short tag `<?' -- Hint: use `<?php' instead
+168:	}
+169:	
+170:	$s = "";
+
+	/*. void .*/ function set_string(/*. string .*/ &$s)
+	                                                   \_ HERE
+==== 162: notice: variable $s assigned but never used
+171:	set_string($s);
+172:	set_string($undef_string);
+
+	set_string($undef_string);
+	                        \_ HERE
+==== 172: ERROR: variable $undef_string does not exist
+173:	set_string($undef_array[2]);
+
+	set_string($undef_array[2]);
+	                       \_ HERE
+==== 173: ERROR: variable $undef_array does not exist
+174:	
+175:	class A extends stdClass
+176:	{
+177:		public $x = 0;
+178:		public static $y = 0;
+179:	
+180:		public /*. void .*/ function by_ref(/*. int .*/ & $i)
+181:		{  $i=123; }
+182:	
+183:		public /*. void .*/ function call_by_ref()
+
+		public /*. void .*/ function by_ref(/*. int .*/ & $i)
+	                                                            \_ HERE
+==== 180: notice: variable $i assigned but never used
+184:		{
+185:			self::by_ref($this->x);
+186:			echo "x=", $this->x, "\n";
+187:			self::by_ref(self::$y);
+188:			echo self::$y;
+189:		}
+190:	
+191:		public /*. void .*/ function new_self_parent()
+192:		{
+193:			$a = new self;
+194:			$b = new parent;
+195:			$c = new self();
+196:			$d = new parent();
+197:		}
+198:	
+199:		public /*. void .*/ function self_parent_args(
+
+			$d = new parent();
+	                  \_ HERE
+==== 196: notice: variable $d assigned but never used
+
+			$c = new self();
+	                  \_ HERE
+==== 195: notice: variable $c assigned but never used
+
+			$b = new parent;
+	                  \_ HERE
+==== 194: notice: variable $b assigned but never used
+
+			$a = new self;
+	                  \_ HERE
+==== 193: notice: variable $a assigned but never used
+200:			/*. self .*/ $o1,
+201:			/*. parent .*/ $o2,
+202:			self $o3,
+203:			parent $o4)
+204:		{}
+205:	}
+
+			parent $o4)
+	                          \_ HERE
+==== 203: notice: variable $o4 assigned but never used
+
+			self $o3,
+	                        \_ HERE
+==== 202: notice: variable $o3 assigned but never used
+
+			/*. parent .*/ $o2,
+	                                  \_ HERE
+==== 201: notice: variable $o2 assigned but never used
+
+			/*. self .*/ $o1,
+	                                \_ HERE
+==== 200: notice: variable $o1 assigned but never used
+206:	
+207:	class B
+208:	{
+209:		public $x = 0;
+210:	}
+211:	
+212:	$a = new A(); $a->x = 123;
+213:	$b = new A(); $b->x = 123;
+214:	if( $a === $b ) ;
+215:	if( $a instanceof A ) ;
+216:	if( ! $a instanceof B ) ;
+217:	$a->call_by_ref();
+218:	$a_clone = clone $a;
+219:	
+220:	/* ****
+221:	$fr = pg_connect("dbname=icodb");
+222:	$to1 = (boolean) $fr;
+223:	$to2 = (int) $fr;
+224:	$to3 = (float) $fr;
+225:	$to4 = (string) $fr;
+226:	#$to5 = (array) $fr;
+227:	****/
+228:	
+229:	/* Cmp ops: */
+230:	
+231:	if( 1 < 2 || 1 <= 2 || 1 == 2 || 1 === 2 || 1 >= 2
+232:		|| "a"==="b" || "a" !== "b" ) ;
+233:	
+234:	if( 1 < 2 || 0.5 >= 3.0 && "012" === "890"
+235:		|| 12 != 34 || 12 !== 34 || 1 === 3 and true or false xor true) ;
+236:	
+237:	# All the valid combinations of visibility, static and final attributes:
+238:	final class Z {
+239:		public /*.int.*/ $a;
+
+		public /*.int.*/ $a;
+	                            \_ HERE
+==== 239: ERROR: property $a of type int requires an initial value, otherwise it would be initialized to the invalid value NULL at runtime (PHPLint safety restriction)
+240:		public static $b = 0;
+241:		static $c = 0;
+242:		static public $d = 0;
+243:	
+244:		public /*. void .*/ function f(){}
+245:		public static /*. void .*/ function g(){}
+246:		public final /*. void .*/ function h(){}
+247:		static /*. void .*/ function i(){}
+248:		static public /*. void .*/ function j(){}
+249:		static final /*. void .*/ function k(){}
+250:		static public final /*. void .*/ function l(){}
+251:		static final public /*. void .*/ function m(){}
+252:		final /*. void .*/ function n(){}
+253:		final public /*. void .*/ function o(){}
+254:		final static /*. void .*/ function p(){}
+255:		final public static /*. void .*/ function q(){}
+256:		final static public /*. void .*/ function r(){}
+257:	}
+258:	
+259:	# Exceptions:
+260:	class MyExc extends ErrorException {}
+261:	try {
+262:	   $error = 'Always throw this error';
+263:	   throw new Exception($error, 10);
+
+	   throw new Exception($error, 10);
+	                                   \_ HERE
+==== 263: notice: throwing Exception
+264:	   throw new MyExc($error);
+
+	   throw new MyExc($error);
+	        \_ HERE
+==== 264: ERROR: unreachable statement
+
+	   throw new MyExc($error);
+	                           \_ HERE
+==== 264: notice: throwing MyExc
+265:	   throw new MyExc();
+
+	   throw new MyExc();
+	        \_ HERE
+==== 265: ERROR: unreachable statement
+
+	   throw new MyExc();
+	                     \_ HERE
+==== 265: notice: throwing MyExc
+266:	}
+267:	catch (Exception $e) {
+268:	   echo 'Caught exception: ',  $e->getMessage(), "\n";
+269:	}
+270:	catch (MyExc $e) {
+
+	catch (MyExc $e) {
+	               \_ HERE
+==== 270: ERROR: exception MyExc not thrown or already caught
+271:	   echo 'Caught exception: ',  $e->getMessage(), "\n";
+272:	}
+273:	
+274:	
+275:	/* Type hinting: */
+276:	/*. void .*/ function type_hinting(A $o){}
+277:	type_hinting(new A());
+
+	/*. void .*/ function type_hinting(A $o){}
+	                                       \_ HERE
+==== 276: notice: variable $o assigned but never used
+278:	
+279:	
+280:	/* Typecasting: */
+281:	
+282:	$tc1 = FALSE or (boolean) 1;
+283:	$tc2 = 1 + (int) "123";
+284:	$tc3 = 0.0 + (float) "3.14";
+285:	$tc4 = "abc" . (string) 123;
+286:	$tc5 = /*. (array[int]string) .*/ array();  $tc5[1] = "abc";
+287:	$tc6 = /*. (resource) .*/ count_chars("abc");
+
+	$tc6 = /*. (resource) .*/ count_chars("abc");
+	                                             \_ HERE
+==== 287: ERROR: formal typecast allowed only if applied to NULL or empty array array(). Hint: have a look at the PHPLint magic function cast().
+288:	#$tc7 = /*. (object) .*/ new A();
+289:	#$tc8 = /*. (A) .*/ new A();
+290:	
+291:	
+292:	/*. void .*/ function LoginMask(/*. string .*/ $name)
+293:	{
+294:		?>
+295:		<html><body>
+296:		<form method=post action="<?= $_SERVER['PHP_SELF'] ?>">
+297:		</form>
+298:		</body></html>
+299:		<?
+
+		<?
+	        \_ HERE
+==== 299: Warning: using deprecated short tag `<?' -- Hint: use `<?php' instead
+300:	}
+301:	
+302:	
+303:	/* Error handling: */
+304:	
+305:	$file = @fopen("text.php", "r");
+
+	/*. void .*/ function LoginMask(/*. string .*/ $name)
+	                                                    \_ HERE
+==== 292: notice: variable $name assigned but never used
+306:	
+307:	
+308:	class TestStaticExpr
+309:	{
+310:		const a = FALSE,
+311:			b = NULL,
+312:			c = 123,
+313:			d = -123,
+314:			e = "hello",
+315:			f = self::a,
+316:		#   g = array("one", "two"),
+317:		#      note: array() not allowed in class constants
+318:			h = 3.141592e-4;
+319:	
+320:		public $a = FALSE,
+321:			$b = NULL,
+
+			$b = NULL,
+	                          \_ HERE
+==== 321: ERROR: cannot guess property's type from bare null value.
+	Required either explicit type declaration, example:
+		public /*. string .*/ $x = NULL;
+	or formal typecast on bare null value, example:
+		public $x = /*. (string) .*/ NULL;
+322:			$c = 123,
+323:			$d = -123,
+324:			$e = "hello",
+325:			$f = self::a,
+326:			$g = array("one", "two"),
+327:			$h = 3.141592e-4;
+328:	
+329:		/*. void .*/ function f($a1=FALSE, $a2=NULL, $a3=-123,
+330:			$a5="hello", $a6=self::a, $a7=array("one", "two"), $a8=3.141592e-4)
+331:		{
+332:			static $a = FALSE,
+333:			       $b = NULL,
+334:			       $c = 123;
+335:			static $d = -123;
+336:			static $e = "hello";
+337:			static $f = self::a;
+338:			static $g = array("one", "two");
+339:			static $h = 3.141592e-4;
+340:		}
+341:	}
+
+			static $h = 3.141592e-4;
+	                         \_ HERE
+==== 339: notice: variable $h assigned but never used
+
+			static $g = array("one", "two");
+	                         \_ HERE
+==== 338: notice: variable $g assigned but never used
+
+			static $f = self::a;
+	                         \_ HERE
+==== 337: notice: variable $f assigned but never used
+
+			static $e = "hello";
+	                         \_ HERE
+==== 336: notice: variable $e assigned but never used
+
+			static $d = -123;
+	                         \_ HERE
+==== 335: notice: variable $d assigned but never used
+
+			       $c = 123;
+	                         \_ HERE
+==== 334: notice: variable $c assigned but never used
+
+			       $b = NULL,
+	                         \_ HERE
+==== 333: notice: variable $b assigned but never used
+
+			static $a = FALSE,
+	                         \_ HERE
+==== 332: notice: variable $a assigned but never used
+
+			$a5="hello", $a6=self::a, $a7=array("one", "two"), $a8=3.141592e-4)
+	                                                                      \_ HERE
+==== 330: notice: variable $a8 assigned but never used
+
+			$a5="hello", $a6=self::a, $a7=array("one", "two"), $a8=3.141592e-4)
+	                                             \_ HERE
+==== 330: notice: variable $a7 assigned but never used
+
+			$a5="hello", $a6=self::a, $a7=array("one", "two"), $a8=3.141592e-4)
+	                                \_ HERE
+==== 330: notice: variable $a6 assigned but never used
+
+			$a5="hello", $a6=self::a, $a7=array("one", "two"), $a8=3.141592e-4)
+	                   \_ HERE
+==== 330: notice: variable $a5 assigned but never used
+
+		/*. void .*/ function f($a1=FALSE, $a2=NULL, $a3=-123,
+	                                                        \_ HERE
+==== 329: notice: variable $a3 assigned but never used
+
+		/*. void .*/ function f($a1=FALSE, $a2=NULL, $a3=-123,
+	                                              \_ HERE
+==== 329: notice: variable $a2 assigned but never used
+
+		/*. void .*/ function f($a1=FALSE, $a2=NULL, $a3=-123,
+	                                   \_ HERE
+==== 329: notice: variable $a1 assigned but never used
+342:	
+343:	class SpecialMethods {
+344:		/*. void .*/ function __destruct(){}
+345:		public /*. void .*/  function __clone(){}
+346:		static  /*. void .*/  function __set_static(/*. array[string]mixed .*/ $a){}
+347:		public  /*. array[int]string .*/  function __sleep(){}
+
+		static  /*. void .*/  function __set_static(/*. array[string]mixed .*/ $a){}
+	                                                                                 \_ HERE
+==== 346: notice: variable $a assigned but never used
+348:		public  /*. void .*/  function __wakeup(){}
+
+		public  /*. array[int]string .*/  function __sleep(){}
+	                                                          \_ HERE
+==== 347: ERROR: missing `return' in at least one execution path in non-void method SpecialMethods::__sleep
+349:		public  /*. string.*/ function __toString(){}
+350:		#public  /*. void .*/  function __set(/*.string.*/ $n, /*. mixed .*/ $v){}
+351:		#public  /*. mixed .*/ function __get(/*.string.*/ $n){}
+352:		#public  /*. bool .*/  function __isset(/*.string.*/ $n){}
+353:		#public  /*. void .*/  function __unset(/*.string.*/ $n){}
+354:		#public  /*. mixed .*/  function __call(/*.string.*/ $n, /*. array[]mixed .*/ $a){}
+355:	}
+
+		public  /*. string.*/ function __toString(){}
+	                                                 \_ HERE
+==== 349: ERROR: missing `return' in at least one execution path in non-void method SpecialMethods::__toString
+356:	
+357:	
+358:	$last_exception1 = /*. (Exception) .*/ NULL;
+359:	/*. Exception .*/ $last_exception2 = NULL;
+360:	/** @var Exception */
+361:	$last_exception3 = NULL;
+362:	
+363:	
+364:	/*
+365:		phpDocumentor DocBlocks
+366:	*/
+367:	
+368:	# Empty DocBlocks:
+369:	/***/  # <== empty DocBlock
+370:	/** */
+371:	/**
+372:	*/
+
+	/** */
+	      \_ HERE
+==== 370: ERROR: unused DocBlock
+373:	/** * */
+
+	*/
+	  \_ HERE
+==== 372: ERROR: unused DocBlock
+374:	/**
+375:	 *
+376:	 */
+
+	/** * */
+	        \_ HERE
+==== 373: ERROR: unused DocBlock
+377:	
+378:	/**
+379:	* short short
+380:	* long long
+381:	* long long
+382:	* long long
+383:	* long long
+384:	*/
+
+	 */
+	   \_ HERE
+==== 376: ERROR: unused DocBlock
+385:	$dummy10 = 1;
+386:	
+387:	/**
+388:	* short short
+389:	* short short.
+390:	* long long
+391:	* long long
+392:	* long long
+393:	*/
+394:	$dummy11 = 1;
+395:	
+396:	/**
+397:	* short short
+398:	* short short
+399:	* short short.
+400:	* long long
+401:	* long long
+402:	*/
+403:	$dummy12 = 1;
+404:	
+405:	/**
+406:	* short short
+407:	*
+408:	* long long
+409:	*/
+410:	$dummy13 = 1;
+411:	
+412:	/**
+413:	* short short
+414:	* short short
+415:	*
+416:	* long long
+417:	*/
+418:	$dummy14 = 1;
+419:	
+420:	/**
+421:	* short short
+422:	* short short
+423:	* short short
+424:	*
+425:	* long long
+426:	*/
+427:	$dummy15 = 1;
+428:	
+429:	/**
+430:	* short short
+431:	* long long
+432:	* long long
+433:	* long long
+434:	*
+435:	* long long
+436:	*/
+437:	$dummy16 = 1;
+438:	
+439:	/**
+440:	* <b>bold</b> in short.
+441:	* <b>bold</b> in long.
+442:	*/
+443:	$dummy17 = 1;
+444:	
+445:	/**
+446:	* Testing all the tags:
+447:	*
+448:	* ATTENTION<br>
+449:	* <b>bold</b> <i>italic</i> <code>Code</code> [BR here:]<br>
+450:	* [P here:]<p>
+451:	* <pre>
+452:	* while( $i &gt;= 0 )
+453:	*     $i--;
+454:	* </pre>
+455:	* <ul> <li><b>first bolded</b></li> <li>sublist:<ul><li>second</li></ul></li> <li>...and last</li> </ul>
+456:	* <ol> <li>first</li> <li>second</li> <li>...and last</li> </ol>
+457:	* <b><i>bold+italic</i></b>
+458:	*/
+459:	$dummy18 = 1;
+460:	
+461:	/**#@+ FIXME: incomplete support for templates, now parsed but ignored */
+462:	/**#@-*/
+
+	/**#@+ FIXME: incomplete support for templates, now parsed but ignored */
+	                                                                         \_ HERE
+==== 461: ERROR: unused DocBlock
+463:	
+464:	/**
+465:	 * A constant giving the number of days in a week
+466:	 */
+
+	/**#@-*/
+	        \_ HERE
+==== 462: ERROR: unused DocBlock
+467:	define("WEEK_DAYS", 7);
+468:	
+469:	/**
+470:	 * Short description. This is the long long long description.
+471:	 *
+472:	 * @var array
+473:	 */
+474:	$emptyArray = array();
+475:	
+476:	/**
+477:	 * Another array
+478:	 *
+479:	 * @var array[int]string|int|FALSE
+480:	 */
+
+	@var array[int]string|int|FALSE
+	                              \_ HERE
+==== 479: ERROR: multiple types not supported; assuming array[int]string
+481:	$emptyArray2 = array("hello");
+482:	
+483:	/**
+484:	 * Another array
+485:	 *
+486:	 * @var array[int][string]string
+487:	 */
+488:	$emptyArray3 = array( array("s"=>"s") );
+489:	
+490:	/**
+491:	 * Simple test for docBlock
+492:	 *
+493:	 * This text follows an empty line, so it is moved to the long descr.
+494:	 * @param int       $len
+495:	 * @param string    $str
+496:	 * @param Exception & $obj  bla bla bla
+497:	 * @return bool
+498:	 * @author Umberto Salsi <salsi@icosaedro.it>
+499:	 */
+500:	function TestDocBlock($len, $str, &$obj)
+501:	{
+502:		return strlen($str) > $len;
+503:	}
+504:	
+505:	/**
+506:	 * Classic test class
+507:	 *
+508:	 */
+
+	function TestDocBlock($len, $str, &$obj)
+	                                       \_ HERE
+==== 500: notice: variable $obj assigned but never used
+509:	class docBlockCommentedClass {
+510:	
+511:		/**
+512:		 * The second integer number
+513:		 */
+514:		const TWO = 2;
+515:	
+516:		/**
+517:		 * @var int
+518:		 */
+519:		public $intProp;
+
+		public $intProp;
+	                        \_ HERE
+==== 519: ERROR: property $intProp of type int requires an initial value, otherwise it would be initialized to the invalid value NULL at runtime (PHPLint safety restriction)
+520:	
+521:		/**
+522:		 * Useless method
+523:		 *
+524:		 * Use this method to do nothing in a simple, efficient way.
+525:		 *
+526:		 * @param resource $fd
+527:		 * @param string $name
+528:		 * @return bool
+529:		 */
+530:		function aMethod($fd, $name){}
+531:	
+532:	}
+
+		function aMethod($fd, $name){}
+	                        \_ HERE
+==== 530: ERROR: missing `return' in at least one execution path in non-void method docBlockCommentedClass::aMethod
+
+		function aMethod($fd, $name){}
+	                                   \_ HERE
+==== 530: notice: variable $name assigned but never used
+
+		function aMethod($fd, $name){}
+	                            \_ HERE
+==== 530: notice: variable $fd assigned but never used
+533:	
+534:	
+535:	/* Abstract classes: */
+536:	abstract class Shape
+537:	{
+538:		const DEF_SCALE = 1.0;
+539:	
+540:		public $x = 0.0, $y = 0.0;
+541:	
+542:		/*. void .*/ function moveTo(/*. float .*/ $x, /*. float .*/ $y)
+543:		{
+544:			$this->x = $x;
+545:			$this->y = $y;
+546:		}
+547:	
+548:		abstract /*. void .*/ function scale(/*. float .*/ $factor) ;
+549:	}
+550:	
+551:	
+552:	class Circle extends Shape
+553:	{
+554:		public $radius = 1.0;
+555:	
+556:		/*. void .*/ function scale(/*. float .*/ $factor)
+557:		{
+558:			$this->radius *= $factor;
+559:		}
+560:	}
+561:	
+562:	class Rectangle extends Shape
+563:	{
+564:		public $side_a = 1.0, $side_b = 2.0;
+565:	
+566:		/*. void .*/ function scale(/*. float .*/ $factor)
+567:		{
+568:			$this->side_a *= $factor;
+569:			$this->side_b *= $factor;
+570:		}
+571:	}
+572:	
+573:	$drawing = /*. (array[int]Shape) .*/ array();
+574:	
+575:	/*. void .*/ function scale_shapes(/*. float .*/ $factor)
+576:	{
+577:		foreach($GLOBALS['drawing'] as $shape)
+578:			$shape->scale($factor);
+579:	}
+580:	
+581:	
+582:	$drawing[] = new Circle();
+583:	$drawing[] = new Circle();
+584:	$drawing[] = new Rectangle();
+585:	scale_shapes(100.0);
+586:	
+587:	
+588:	
+589:	/* Interface test: */
+590:	
+591:	interface DataContainer
+592:	{
+593:		/*. void .*/ function set(
+594:			/*. string .*/ $name,
+595:			/*. string .*/ $value);
+596:	
+597:		/*. string .*/ function get(/*. string .*/ $name);
+598:	}
+599:	
+600:	
+601:	class FileBasedContainer implements DataContainer
+602:	{
+603:		private $base_dir = "";
+604:	
+605:		/*. void .*/ function __construct(/*. string .*/ $base_dir)
+606:		{
+607:			$this->base_dir = $base_dir;
+608:		}
+609:	
+610:		/*. void .*/ function set(
+611:			/*. string .*/ $name,
+612:			/*. string .*/ $value)
+613:		{
+614:			@file_put_contents($this->base_dir ."/". $name, $value);
+615:		}
+616:	
+617:		/*. string .*/ function get(/*. string .*/ $name)
+618:		{
+619:			return @file_get_contents($this->base_dir ."/". $name);
+620:		}
+621:	}
+622:	
+623:	
+624:	/*. void .*/ function save_data(/*. array[string]mixed .*/ $arr, /*. DataContainer .*/ $c)
+625:	{
+626:		foreach($arr as $k => $v)
+627:			$c->set($k, serialize($v));
+628:	}
+629:	
+630:	save_data( array("one"=>1, "two"=>2), new FileBasedContainer("/tmp") );
+631:	
+632:	/**
+633:	Check DocBlock Parser.
+634:	@param int $a
+635:	@param int $b
+636:	@return void
+637:	*/
+638:	function docblock_f1($a, $b){}
+639:	
+640:	
+641:	/**
+642:	Check DocBlock Parser.
+643:	@param int $a
+644:	@param int $b
+645:	@return void
+646:	*/
+
+	function docblock_f1($a, $b){}
+	                           \_ HERE
+==== 638: notice: variable $b assigned but never used
+
+	function docblock_f1($a, $b){}
+	                       \_ HERE
+==== 638: notice: variable $a assigned but never used
+647:	function docblock_f2($a){}
+
+	*/
+	  \_ HERE
+==== 646: ERROR: @param $b is not an argument
+648:	
+649:	
+650:	/**
+651:	Check DocBlock Parser.
+652:	@param int $a
+653:	@param int $b
+654:	@return void
+655:	*/
+
+	function docblock_f2($a){}
+	                       \_ HERE
+==== 647: notice: variable $a assigned but never used
+656:	function docblock_f3($a, $b, $c){}
+
+	function docblock_f3($a, $b, $c){}
+	                                \_ HERE
+==== 656: ERROR: undefined type for argument $c. Hint: you may:
+	- Add DocBlock line-tag, example: @param int $c
+	- Use type-hint,         example: int $c
+	- Use meta-code,         example: /*.int.*/ $c
+	- Assign default value,  example: $c = 123
+657:	
+658:	
+659:	/**
+660:	Check DocBlock Parser.
+661:	@param int $a
+662:	@param int $b
+663:	@param int $c
+664:	@return void
+665:	*/
+
+	function docblock_f3($a, $b, $c){}
+	                               \_ HERE
+==== 656: notice: variable $c assigned but never used
+
+	function docblock_f3($a, $b, $c){}
+	                           \_ HERE
+==== 656: notice: variable $b assigned but never used
+
+	function docblock_f3($a, $b, $c){}
+	                       \_ HERE
+==== 656: notice: variable $a assigned but never used
+666:	function docblock_f4($a, $b){}
+
+	*/
+	  \_ HERE
+==== 665: ERROR: @param $c is not an argument
+667:	
+668:	
+669:	/**
+670:	Check DocBlock Parser.
+671:	@param int $a
+672:	@param int $z
+673:	@return void
+674:	*/
+
+	function docblock_f4($a, $b){}
+	                           \_ HERE
+==== 666: notice: variable $b assigned but never used
+
+	function docblock_f4($a, $b){}
+	                       \_ HERE
+==== 666: notice: variable $a assigned but never used
+675:	function docblock_f5($a, $b){}
+
+	function docblock_f5($a, $b){}
+	                            \_ HERE
+==== 675: ERROR: undefined type for argument $b. Hint: you may:
+	- Add DocBlock line-tag, example: @param int $b
+	- Use type-hint,         example: int $b
+	- Use meta-code,         example: /*.int.*/ $b
+	- Assign default value,  example: $b = 123
+
+	*/
+	  \_ HERE
+==== 674: ERROR: @param $z is not an argument
+676:	
+677:	
+678:	/**
+679:	Check DocBlock Parser.
+680:	@param int $a
+681:	@param int $b
+682:	@return void
+683:	*/
+
+	function docblock_f5($a, $b){}
+	                           \_ HERE
+==== 675: notice: variable $b assigned but never used
+
+	function docblock_f5($a, $b){}
+	                       \_ HERE
+==== 675: notice: variable $a assigned but never used
+684:	function docblock_f6($a, $b){ return 1; }
+
+	function docblock_f6($a, $b){ return 1; }
+	                                       \_ HERE
+==== 684: ERROR: function docblock_f6: expected return type is void, found int
+685:	
+686:	
+687:	/**
+688:	Check DocBlock Parser.
+689:	@param int $a
+690:	@param int $b
+691:	@return void
+692:	*/
+
+	function docblock_f6($a, $b){ return 1; }
+	                           \_ HERE
+==== 684: notice: variable $b assigned but never used
+
+	function docblock_f6($a, $b){ return 1; }
+	                       \_ HERE
+==== 684: notice: variable $a assigned but never used
+693:	/*. int .*/ function docblock_f7(/*. float .*/ $a, /*. float .*/ $b){ return 1; }
+
+	/*. int .*/ function docblock_f7(/*. float .*/ $a, /*. float .*/ $b){ return 1; }
+	                    \_ HERE
+==== 693: ERROR: return type declaration both in DocBlock and PHPLint meta-code
+
+	/*. int .*/ function docblock_f7(/*. float .*/ $a, /*. float .*/ $b){ return 1; }
+	                                                 \_ HERE
+==== 693: ERROR: the type of the parameter $a as declared in the DocBlock differs from the type declare in-line
+
+	/*. int .*/ function docblock_f7(/*. float .*/ $a, /*. float .*/ $b){ return 1; }
+	                                                                   \_ HERE
+==== 693: ERROR: the type of the parameter $b as declared in the DocBlock differs from the type declare in-line
+694:	
+695:	
+696:	// Array short syntax - static expression:
+697:	function array_short_syntax($a = [], $b = ["a"], $c = [1, 2]){}
+
+	/*. int .*/ function docblock_f7(/*. float .*/ $a, /*. float .*/ $b){ return 1; }
+	                                                                   \_ HERE
+==== 693: notice: variable $b assigned but never used
+
+	/*. int .*/ function docblock_f7(/*. float .*/ $a, /*. float .*/ $b){ return 1; }
+	                                                 \_ HERE
+==== 693: notice: variable $a assigned but never used
+698:	
+699:	// Array short syntax - non-static expression:
+700:	$array_short_syntax_1 = [];  if($array_short_syntax_1);
+
+	function array_short_syntax($a = [], $b = ["a"], $c = [1, 2]){}
+	                                                   \_ HERE
+==== 697: notice: variable $c assigned but never used
+
+	function array_short_syntax($a = [], $b = ["a"], $c = [1, 2]){}
+	                                       \_ HERE
+==== 697: notice: variable $b assigned but never used
+
+	function array_short_syntax($a = [], $b = ["a"], $c = [1, 2]){}
+	                              \_ HERE
+==== 697: notice: variable $a assigned but never used
+
+	$array_short_syntax_1 = [];  if($array_short_syntax_1);
+	                           \_ HERE
+==== 700: notice: guessed variable's type mixed[] from bare empty array value.
+	Recommended either type declaration, example:
+		/*. string[int] .*/ $x = array(); // array of strings with int index
+	or formal typecast on empty array, examples:
+		$x = /*. (MyClass[string]) .*/ array(); // associative array of MyClass objects
+		$x = /*. (float[int][int]) .*/ array(); // matrix of floating-point numbers
+
+	$array_short_syntax_1 = [];  if($array_short_syntax_1);
+	                                                      \_ HERE
+==== 700: ERROR: found expression of type mixed[], expected type is boolean. Remember that an array with zero elements evaluates to FALSE, and an array with one or more elements evaluates to TRUE.
+701:	$array_short_syntax_2 = ["a"];  if($array_short_syntax_2);
+
+	$array_short_syntax_2 = ["a"];  if($array_short_syntax_2);
+	                                                         \_ HERE
+==== 701: ERROR: found expression of type string[int], expected type is boolean. Remember that an array with zero elements evaluates to FALSE, and an array with one or more elements evaluates to TRUE.
+702:	$array_short_syntax_3 = [1, 2];  if($array_short_syntax_3);
+
+	$array_short_syntax_3 = [1, 2];  if($array_short_syntax_3);
+	                                                          \_ HERE
+==== 702: ERROR: found expression of type int[int], expected type is boolean. Remember that an array with zero elements evaluates to FALSE, and an array with one or more elements evaluates to TRUE.
+703:	
+704:	// ClassName::class special constant:
+705:	const X = Exception::class;
+706:	echo Exception::class, X, "\n";
+707:	
+708:	?>   <?= "...", "..."  ?>
+709:	
+710:	<?php
+711:	
+712:	/** ERR: Unused DocBlock before used one. */
+713:	
+714:	/** Used DocBlock. */
+
+	/** ERR: Unused DocBlock before used one. */
+	                                            \_ HERE
+==== 712: ERROR: unused DocBlock
+715:	define("c1", 0);
+716:	
+717:	/** ERR: DocBlock before statement which does not consume it. */
+718:	echo 0;
+719:	function f1(){} // this func will get the DocBlock.
+
+	/** ERR: DocBlock before statement which does not consume it. */
+	                                                                \_ HERE
+==== 717: ERROR: unused DocBlock
+720:	
+721:	/** ERR: Unused final DocBlock. */
+722:	
+723:	?>PHP execution terminated.
+
+	/** ERR: Unused final DocBlock. */
+	                                  \_ HERE
+==== 721: ERROR: unused DocBlock
+==== ?: notice: this package is not a library:
+	Found textual content in global scope at lines 708-708.
+	Found textual content in global scope at lines 723-724.
+END parsing of 5-general.php
+==== ?:?: notice: required module core.php
+==== ?:?: notice: required module file.php
+Overall test results: 60 errors, 3 warnings.

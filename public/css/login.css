@@ -1,0 +1,99 @@
+*{
+    box-sizing: border-box;
+}
+body{
+    margin: 0;
+    font-family:sans-serif ;
+    background: #204862;
+    background-image: url(/images/pasillo.jpg);
+    background-repeat: no-repeat;
+}
+h1{
+    color: white;
+    text-align: center;
+    margin: 15px 0px 10px 0px;
+}
+.contorno{
+    width: 100%;
+    position: relative;
+    max-width: 450px;
+    margin: auto;
+    background-image: url(/images/mano.jpg); 
+    background-size: cover;
+    background-position: center center;
+    border-radius: 7px;
+}
+.sesion{
+    background-image: url(/images/mano.jpg);
+    background-repeat: no-repeat;
+    width: -650px;
+    color: white;
+    padding: 20px;
+    text-align: center;
+    font-weight: 100;
+    font-size: 30px;
+    border-top-left-radius: 7px;
+    border-top-right-radius: 7px;
+    border-bottom: 5px solid crimson;
+}
+.cuadro{
+ padding: 10px 30px;
+ display:flex;
+ flex-wrap:wrap; 
+ justify-content:space-between;  
+}
+.input-50{
+    width: 100%;
+    text-align: center;
+}
+input{
+    margin-bottom: 15px;
+    padding: 15px;
+    font-size: 16px;
+    border-radius: 3px;
+    border: 1px solid #89D7D9;
+}
+.ent{
+    background: crimson;
+    color:#fff;
+    margin: auto;
+    padding: 10px 40px;
+    cursor: pointer;
+}
+.ent:active{
+    transform: scale(1.05);
+}
+.can{
+    background: deepskyblue;
+    color: #fff;
+    margin: 0px 40px 0px 10px;
+    padding: 10px 40px;
+}
+.hola{
+    width: 100%;
+    margin: 7px;
+    text-align: center;
+    font-size: 14px;
+}
+input[type="submit"]{
+    opacity: 0.8;
+}
+input[type="submit"]:hover {
+    opacity: 1;
+}
+input[type="reset"]{
+    opacity: 0.8;
+}
+input[type="reset"]:hover {
+    opacity: 1;
+}
+@media(max-width:900px;){
+    form {
+        width:  80%;
+    }
+}
+@media(max-width:500;){
+    form{
+        width: 95%;
+    }
+}

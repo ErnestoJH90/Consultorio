@@ -1,0 +1,106 @@
+*{
+    box-sizing: border-box;
+}
+body{
+    margin: 0;
+    font-family:sans-serif ;
+    background: #204862;
+    background-image: url(/images/pasillo.jpg);
+    background-repeat: no-repeat;
+}
+h1{
+    color: white;
+    text-align: center;
+    margin: 20px 0px 0px 0px;
+}
+#form-register{
+    width: 98%;
+    max-width: 450px;
+    margin: 50px auto;
+    background: white;
+    border-radius: 7px;
+}
+.cue{
+    background: deepskyblue;
+    color: white;
+    padding: 20px;
+    text-align: center;
+    font-weight: 100;
+    font-size: 30px;
+    border-top-left-radius: 7px;
+    border-top-right-radius: 7px;
+    border-bottom: 5px solid crimson;
+}
+.contenedor{
+ padding: 10px 30px;
+ display:flex;
+ flex-wrap:wrap; 
+ justify-content:space-between;  
+}
+.input-48{
+    width: 48%;
+}
+.input-481{
+    width: 49%;
+    margin: -120px 0px 0px 0px;
+}
+.input-482{
+    width: 49%;
+    margin: -40px 0px 0px 0px;
+}
+.input-100{
+    width: 98%;
+}
+input{
+   
+    margin-bottom: 5px;
+    padding: 10px;
+    font-size: 16px;
+    border-radius: 2px;
+    border: 1px solid darkgrey;
+}
+.btn-registrar{
+    background: crimson;
+    color:#fff;
+    margin:-0px -1950px 0px 200px;
+    padding: 10px 40px;
+    cursor: pointer;
+}
+.btn-registrar:active{
+    transform: scale(1.05);
+}
+.btn-cancelar{
+    background: deepskyblue;
+    color: #fff;
+    margin: 0px 40px 0px 10px;
+    padding: 10px 40px;
+    cursor: pointer;
+}
+.link{
+    width: 100%;
+    margin: 7px;
+    text-align: center;
+    font-size: 14px;
+}
+input[type="submit"]{
+    opacity: 0.8;
+}
+input[type="submit"]:hover {
+    opacity: 1;
+}
+input[type="reset"]{
+    opacity: 0.8;
+}
+input[type="reset"]:hover {
+    opacity: 1;
+}
+@media(max-width:900px;){
+    form {
+        width:  80%;
+    }
+}
+@media(max-width:500;){
+    form{
+        width: 95%;
+    }
+}

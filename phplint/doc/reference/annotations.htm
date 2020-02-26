@@ -1,0 +1,249 @@
+<HTML>
+<HEAD>
+<TITLE>PHPLint Reference Manual</TITLE>
+<META name=description content="PHPLint Reference Manual">
+<META name=author      content="icosaedro.it di Umberto Salsi">
+<META name=owner       content="icosaedro.it di Umberto Salsi">
+<META HTTP-EQUIV="Content-Language"    content="en">
+<LINK rel=stylesheet type='text/css' href='../styles.css'>
+<script type="text/javascript" src="../utils.js"></script>
+</HEAD><BODY onload="buildTOC('toc');">
+
+<h2 id="toc">Annotations</h2>
+
+<p>
+By "annotations" here we mean specially formatted multi-line comments that are basically ignored by PHP but are accurately parsed by PHPLint to gather important informations about the source code, including the signature of functions and methods and useful documentation about their meaning and their purpose. While DocBlocks are mostly compatible with the PHPDocumentor program, meta-code is an alternative way to annotate the source that is specific of PHPLint, and it covers some of the gaps left by the DocBlocks feature. The two chapters below cover these two topics.
+</p>
+
+<h2>Types in annotations</h2>
+
+<p>
+PHPLint supports a broader and articulated set of types than PHP does, including some types that are missing in PHP (resource, mixed, parent), structured arrays and generic classes. Both DocBlocks and PHPLint meta-code share the same syntax to indicate the type of a variable, of a property, of an argument, of a returned value, or a thrown exception. We summarize here below this syntax once for all by using the usual EBNF notation:
+</p>
+
+<blockquote><pre>TYPE = ["?"] name | array_old_syntax | array_new_syntax;
+
+array_old_syntax = "array" [ index {index} [name] ];
+
+array_new_syntax = name index {index};
+
+index = "[]" | "[int]" | "[string]";
+
+name = "void"     | "bool"   | "boolean" | "int" | "integer"
+     | "float"    | "double" | "real"    | "string"
+     | "resource" | "mixed"  | "object"  | class_name [ type_parameters ]
+     | "self"     | "parent";
+
+class_name = ["\\"] identifier {"\\" identifier};
+
+type_parameters = "&lt;" actual_param {"," actual_param } "&gt;";
+
+actual_param = class_name | "?" [ ("extends" | "parent") class_name];
+</pre></blockquote>
+
+
+<p>
+The nullable modifier "<tt>?</tt>" is allowed only for the following types to comply with the PHPLint types model: string, array, resource, object, class_name.
+</p>
+
+<p>
+The following table summarizes the allowed types and their meaning:
+</p>
+
+<pre>
+
+</pre>
+<table align=center cellpadding=5 cellspacing=0 border=1 width="70%">
+
+<tr>
+<th>Type</th>
+<th>Description</th>
+</tr>
+
+<tr>
+<td align=top><b>void</b></td>
+<td>Functions and methods that do not return a value are declared to
+return a value of this dummy type.</td></tr>
+
+<tr>
+<td align=top><b>bool</b> or <b>boolean</b></td>
+<td>A boolean value, either FALSE or TRUE. 0 and 1 are numbers in PHPLint
+and cannot be used in place of the boolean values.</td></tr>
+
+<tr><td align=top><b>int</b> or <b>integer</b></td>
+<td>An integer number.</td></tr>
+
+<tr><td align=top><b>float</b> or <b>double</b> or <b>real</b></td>
+<td>A floating point number.</td></tr>
+
+<tr><td align=top><b>string</b></td>
+<td>A string of bytes. Variables of this type can also evaluate to NULL under PHPLint.</td></tr>
+
+<tr><td align=top><b>E[K]</b></td>
+<td>Array with keys of type K and elements of type E.
+Variables of this type can also evaluate to NULL under PHPLint.
+</td></tr>
+
+<tr><td align=top><b>resource</b></td>
+<td>Typically an opened file, or a network socket.
+Variables of this type can also evaluate to NULL under PHPLint.
+</td></tr>
+
+<tr><td align=top><b>object</b></td>
+<td>Any object. Variables of this type can also evaluate to NULL under PHPLint.
+</td></tr>
+
+<tr><td align=top><i>CLASS_NAME</i></td>
+<td>An object of the specified class or an object implementing the specified
+	interface. Variables of this type can also evaluate to NULL under PHPLint.
+</td></tr>
+
+<tr><td align=top><i>CLASS_NAME&lt;A,B&gt;<br>
+			CLASS_NAME&lt;?&gt;<br>
+			CLASS_NAME&lt;? extends A&gt;<br>
+			CLASS_NAME&lt;? parent A&gt;<br>
+		</i></td>
+<td>
+	Generic classes resulting from the actualization of the <tt>CLASS_NAME</tt>
+	template class. See the "Class templates" chapter for more about class templates
+	and generic programming.
+</td></tr>
+
+<tr><td align=top><b>mixed</b></td>
+<td>
+A variable of this type is a generic container of any type of value.
+Variables of this type can also evaluate to NULL under PHPLint.
+You should avoid mixed variables, or use them with care, because there is
+very little you can do with variables of such type under PHPLint.
+</td></tr>
+</table>
+<pre>
+
+</pre>
+
+<p>
+An array can be described including the type of the index and the type of
+the elements using the old PHPLint syntax:
+</p>
+
+<blockquote>
+<code>array[<i>K</i>]<i>E</i></code>
+</blockquote>
+
+or the new, more concise, but perfectly equivalent PHPLint syntax below:
+
+<blockquote>
+<code>E[K]</code>
+</blockquote>
+
+<p>
+being <i>K</i> the type of the key (<b>int</b>, <b>string</b> or empty for both) and <i>E</i>
+the type of the elements (all the elements must be of the same type).
+The empty key <code>E[]</code> means: array of element of the type
+<code>E</code> and keys that can be both <code>int</code> and
+<code>string</code>. Multi-dimensional matrices can have several indeces:
+<code>E[K1][K2][K3]</code> being K1 the outmost index and K3 the innermost index.
+Some examples:
+</p>
+
+<pre>
+
+</pre>
+<table align=center width="70%" cellspacing=0 cellpadding=5 border=1>
+
+<tr>
+<th colspan=3>Several ways to define an array type</th>
+</tr>
+
+<tr>
+<th width=200>Long form</th>
+<th>Short form</th>
+<th>Description</th>
+</tr>
+
+<tr>
+<td><code>array</code></td>
+<td><code>mixed[]</code></td>
+<td>index can be both integers and strings, elements mixed (avoid)</td>
+</tr>
+
+<tr>
+<td><code>array[]</code></td>
+<td><code>mixed[]</code></td>
+<td>index can be both integers and strings, elements mixed (avoid)</td>
+</tr>
+
+<tr>
+<td><code>array[int]string</code></td>
+<td><code>string[int]</code></td>
+<td>array of strings with int index</td>
+</tr>
+
+<tr>
+<td><code>array[int][int]float</code></td>
+<td><code>float[int][int]</code></td>
+<td>matrix of floating-point numbers</td>
+</tr>
+
+<tr>
+<td><code>array[string]it\icosaedro\bignumbers\Bigint</code></td>
+<td><code>it\icosaedro\bignumbers\Bigint[string]</code></td>
+<td>associative array of big integer numbers</td>
+</tr>
+
+<tr>
+<td><code>array[]SomeClass</code></td>
+<td><code>SomeClass[]</code></td>
+<td>array of objects of the class SomeClass,<br>
+the keys can be both integer numbers and strings (avoid)</td>
+</tr>
+
+
+<tr>
+<td><code>array[int]SomeClass</code></td>
+<td><code>SomeClass[int]</code></td>
+<td>array of objects of the class SomeClass,<br>
+the keys are integer numbers</td>
+</tr>
+
+</table>
+<pre>
+
+</pre>
+
+
+
+<p>
+Many functions of the
+PHP library can return some result or <code>FALSE</code> on error.
+From the point of view of the PHPLint's types model, these functions return
+<code>mixed</code>, and the programmer has to check this result and apply some
+appropriate typecast every time. The common practice to indicate a list of types
+and/or values in a form similar to <code>resource|TRUE</code> is not supported
+by PHPLint.
+</p>
+
+<p>
+Considerations of usability sometimes suggested other solutions which,
+although not perfectly compliant with the types model of PHPLint, are more practical.
+One such example is the <code>fopen()</code> function, that normally returns a
+<code>resource</code> but may also return <code>FALSE</code> while raising E_WARNING.
+In this case PHPLint signals if the raised error is not handled, so remembering
+to the programmer that it must check the result of the function, then avoiding
+to defeat the type safety. If the error to exception mapping is enabled (which is
+the normal case in pretty all the tools of the PHPLint's standard library) even better
+because on error that function does not return at all and the next statement
+is not execute either.
+</p>
+
+<p>
+PHP library apart, PHPLint compliant programs may easily avoid all these problems
+by simply following the PHPLint's types model, making any given function returning
+only one type of data or fail with exception if it cannot. If exceptions are not
+appropriate for the case, some other specific value compatible with the declared
+type should be returned; a negative number or a NULL are typical examples of these
+specific values.
+</p>
+
+</body>
+</html>

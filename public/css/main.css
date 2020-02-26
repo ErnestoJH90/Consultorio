@@ -1,0 +1,111 @@
+body,html{
+	background-image: url("");/*fondo*/
+	height: 100%;
+}
+.main-title{
+	color: black  !important;/*titulo sistemadecitas*/
+	font-size: 26px;
+}
+.large-padding{
+	padding: 10px 15px;
+}
+.table-cart{
+	background-color: rgb(208, 218, 217); /*carrito de compras*/
+	border-radius: 1em;
+	padding: 1em;
+	margin-bottom: 89px;
+
+}
+.table-cart img{
+	width: 200px;
+}
+.no-margin{
+	margin: 0;
+}
+.no-float{
+	float: none;
+}
+.img-shirt{
+	height: 255px !important;
+}
+.img-show-shirt{
+	height: 500px;
+}
+footer{
+	background: #fa95a9 ; /*footer*/
+	text-align: center;
+}
+footer p{
+	text-align: justify;
+	color: #151515;  /*footer sistemasdecitas*/
+}
+footer h3{
+	color: #151515; /*footer desarrollado,terminos, siguenos*/
+}
+ul.redes li{
+	display: inline-block;
+
+}
+
+ul.redes li a{
+	color: rgb(248, 248, 248) !important; /*logos face, gmail*/
+}
+.avatar{
+	
+	border-radius: 80%;
+	float: left;
+	height: 100px;
+	width: 100px;
+	margin: 0px 0px 0px 180px;
+}
+#products {
+position: relative;
+max-width: 100%;
+width: 100%;
+}
+img {
+width: 100%;
+max-width: 15%;
+height: auto;
+}
+.white-panel {
+position: absolute;
+background: rgb(252, 244, 244) ; /* cuadros de index*/
+box-shadow: 0px 1px 2px rgba(0,0,0,0.3);
+padding: 10px;
+}
+.white-panel h1 {
+font-size: 1em;
+}
+.white-panel h1 a {
+color: #A92733;
+}
+.white-panel:hover {
+box-shadow: 1px 1px 10px rgba(0,0,0,0.5);
+margin-top: -5px;
+-webkit-transition: all 0.3s ease-in-out;
+-moz-transition: all 0.3s ease-in-out;
+-o-transition: all 0.3s ease-in-out;
+transition: all 0.3s ease-in-out;
+}
+.product-block{
+	background-color: rgb(252, 248, 248);
+	border-radius: 1em;
+	padding: 1em;
+}
+.Terminos{
+	color:#2E2E2E;
+	background-color: white;
+
+}
+.Nuestra{
+	text-align: justify;
+	color: #2E2E2E;
+}
+
+.terminos2{
+	color: black;
+}
+.alqui2{
+	color: black;
+}

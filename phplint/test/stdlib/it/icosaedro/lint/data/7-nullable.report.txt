@@ -1,0 +1,65 @@
+BEGIN parsing of 7-nullable.php
+1:	<?php
+2:	
+3:	class A {
+4:		function m1(string $i){}
+5:		function m2(?string $i){}
+
+		function m1(string $i){}
+	                             \_ HERE
+==== 4: notice: variable $i assigned but never used
+6:		function m3(): string { return NULL; }
+
+		function m2(?string $i){}
+	                              \_ HERE
+==== 5: notice: variable $i assigned but never used
+7:		function m4(): ?string { return NULL; }
+8:	}
+9:	
+10:	class B1 extends A {
+11:		function m1(string $i){}
+12:		function m2(?string $i){}
+
+		function m1(string $i){}
+	                             \_ HERE
+==== 11: notice: variable $i assigned but never used
+13:		function m3(): string { return NULL; }
+
+		function m2(?string $i){}
+	                              \_ HERE
+==== 12: notice: variable $i assigned but never used
+14:		function m4(): ?string { return NULL; }
+15:	}
+16:	
+17:	class B2 extends A {
+18:		function m1(?string $i){}
+19:		function m2(string $i){} // ERR
+
+		function m1(?string $i){}
+	                              \_ HERE
+==== 18: notice: variable $i assigned but never used
+20:		function m3(): ?string { return NULL; } // ERR
+
+		function m2(string $i){} // ERR
+	                             \_ HERE
+==== 19: notice: variable $i assigned but never used
+
+		function m2(string $i){} // ERR
+	                   \_ HERE
+==== 19: ERROR: method B2::m2 with prototype
+	public void(*string*)
+	is not call-compatible with A::m2 with prototype
+	public void(? *string*)
+	(argument no. 1: arguments must be nullable)
+21:		function m4(): string { return NULL; }
+
+		function m3(): ?string { return NULL; } // ERR
+	                   \_ HERE
+==== 20: ERROR: method B2::m3 with prototype
+	public ?*string*()
+	is not call-compatible with A::m3 with prototype
+	public *string*()
+	(return value cannot be nullable)
+22:	}
+END parsing of 7-nullable.php
+Overall test results: 2 errors, 0 warnings.

@@ -1,0 +1,565 @@
+BEGIN parsing of 7-types.php
+1:	<?php
+2:	
+3:	/*
+4:	 * 'void' as array element is forbidden (PHP 5 and 7).
+5:	 */
+6:	
+7:	$a1 = /*. (void[]) .*/ [];
+
+	$a1 = /*. (void[]) .*/ [];
+	                  \_ HERE
+==== 7: ERROR: invalid element type 'void'
+8:	$a2 = /*. (void[][]) .*/ [];
+
+	$a2 = /*. (void[][]) .*/ [];
+	                    \_ HERE
+==== 8: ERROR: invalid element type 'void'
+9:	$a3 = /*. (array[]void) .*/ [];  // old syntax
+
+	$a3 = /*. (array[]void) .*/ [];  // old syntax
+	                       \_ HERE
+==== 9: ERROR: invalid element type 'void'
+10:	$a4 = /*. (array[][]void) .*/ []; // old syntax
+
+	$a4 = /*. (array[][]void) .*/ []; // old syntax
+	                         \_ HERE
+==== 10: ERROR: invalid element type 'void'
+11:	// Mixed type-hint + meta-code array syntax:
+12:	function f0(array/*. []void .*/ $x, array/*. [][]void .*/ $y): array/*. []void.*/ {return NULL; }
+
+	function f0(array/*. []void .*/ $x, array/*. [][]void .*/ $y): array/*. []void.*/ {return NULL; }
+	                                  \_ HERE
+==== 12: ERROR: invalid element type 'void'
+
+	function f0(array/*. []void .*/ $x, array/*. [][]void .*/ $y): array/*. []void.*/ {return NULL; }
+	                                                            \_ HERE
+==== 12: ERROR: invalid element type 'void'
+
+	function f0(array/*. []void .*/ $x, array/*. [][]void .*/ $y): array/*. []void.*/ {return NULL; }
+	                                                                                   \_ HERE
+==== 12: ERROR: invalid element type 'void'
+13:	
+14:	class MyClass {}
+
+	function f0(array/*. []void .*/ $x, array/*. [][]void .*/ $y): array/*. []void.*/ {return NULL; }
+	                                                            \_ HERE
+==== 12: notice: variable $y assigned but never used
+
+	function f0(array/*. []void .*/ $x, array/*. [][]void .*/ $y): array/*. []void.*/ {return NULL; }
+	                                  \_ HERE
+==== 12: notice: variable $x assigned but never used
+15:	
+16:	/*
+17:	 * Non-nullable types in function signature.
+18:	 */
+19:	
+20:	function f1(void $_void, bool $_bool, int $_int, float $_float,
+
+	function f1(void $_void, bool $_bool, int $_int, float $_float,
+	                       \_ HERE
+==== 20: ERROR: invalid `void' type for formal argument
+21:			string $_string, array $_array, callable $_callable,
+
+			string $_string, array $_array, callable $_callable,
+	                                                        \_ HERE
+==== 21: ERROR: `callable' type not supported, assuming `mixed' instead (PHPLint limitation)
+22:			object $_object, MyClass $_users_class)
+23:	{
+24:		if( $_void );
+25:		if( $_bool );
+26:		if( $_int );
+
+		if( $_int );
+	                   \_ HERE
+==== 26: ERROR: found expression of type int, expected type is boolean. Remember that 0 evaluates to FALSE, and any other integer value evaluates to TRUE.
+27:		if( $_float );
+
+		if( $_float );
+	                     \_ HERE
+==== 27: ERROR: found expression of type float, expected type is boolean. Remember that 0.0 evaluates to FALSE and any other value evaluates to TRUE.
+28:		if( $_string );
+
+		if( $_string );
+	                      \_ HERE
+==== 28: ERROR: found expression of type string, expected type is boolean. Remember that the empty string "", the string "0" and the NULL string all evaluate to FALSE and any other string evaluates to TRUE.
+29:		if( $_array );
+
+		if( $_array );
+	                     \_ HERE
+==== 29: ERROR: found expression of type mixed[], expected type is boolean. Remember that an array with zero elements evaluates to FALSE, and an array with one or more elements evaluates to TRUE.
+30:		if( $_callable );
+
+		if( $_callable );
+	                        \_ HERE
+==== 30: ERROR: found expression of type mixed, expected type is boolean
+31:		if( $_object );
+
+		if( $_object );
+	                      \_ HERE
+==== 31: ERROR: found expression of type object, expected type is boolean. Remember that an object evaluates to FALSE if it has no properties, and evaluates to TRUE if it has at least one property.
+32:		if( $_users_class );
+
+		if( $_users_class );
+	                           \_ HERE
+==== 32: ERROR: found expression of type MyClass, expected type is boolean. Remember that an object evaluates to FALSE if it has no properties, and evaluates to TRUE if it has at least one property.
+33:	}
+34:	
+35:	function f2(): void     {}                if( f2() );
+
+	function f2(): void     {}                if( f2() );
+	                                                    \_ HERE
+==== 35: ERROR: found expression of type void, expected type is boolean
+36:	function f3(): bool     {return FALSE;}   if( f3() );
+37:	function f4(): int      {return 0;}       if( f4() );
+
+	function f4(): int      {return 0;}       if( f4() );
+	                                                    \_ HERE
+==== 37: ERROR: found expression of type int, expected type is boolean. Remember that 0 evaluates to FALSE, and any other integer value evaluates to TRUE.
+38:	function f5(): float    {return 1.0;}     if( f5() );
+
+	function f5(): float    {return 1.0;}     if( f5() );
+	                                                    \_ HERE
+==== 38: ERROR: found expression of type float, expected type is boolean. Remember that 0.0 evaluates to FALSE and any other value evaluates to TRUE.
+39:	function f6(): string   {return "";}      if( f6() );
+
+	function f6(): string   {return "";}      if( f6() );
+	                                                    \_ HERE
+==== 39: ERROR: found expression of type string, expected type is boolean. Remember that the empty string "", the string "0" and the NULL string all evaluate to FALSE and any other string evaluates to TRUE.
+40:	function f7(): array    {return [];}      if( f7() );
+
+	function f7(): array    {return [];}      if( f7() );
+	                                                    \_ HERE
+==== 40: ERROR: found expression of type mixed[], expected type is boolean. Remember that an array with zero elements evaluates to FALSE, and an array with one or more elements evaluates to TRUE.
+41:	function f8(): callable {return NULL;}    if( f8() );
+
+	function f8(): callable {return NULL;}    if( f8() );
+	                       \_ HERE
+==== 41: ERROR: `callable' type not supported, assuming `mixed' instead (PHPLint limitation)
+
+	function f8(): callable {return NULL;}    if( f8() );
+	                                                    \_ HERE
+==== 41: ERROR: found expression of type mixed, expected type is boolean
+42:	function f9(): object   {return NULL;}    if( f9() );
+
+	function f9(): object   {return NULL;}    if( f9() );
+	                                                    \_ HERE
+==== 42: ERROR: found expression of type object, expected type is boolean. Remember that an object evaluates to FALSE if it has no properties, and evaluates to TRUE if it has at least one property.
+43:	function f10(): MyClass {return NULL;}    if( f10() );
+
+	function f10(): MyClass {return NULL;}    if( f10() );
+	                                                     \_ HERE
+==== 43: ERROR: found expression of type MyClass, expected type is boolean. Remember that an object evaluates to FALSE if it has no properties, and evaluates to TRUE if it has at least one property.
+44:	
+45:	/*
+46:	 * Nullable types in function signature.
+47:	 */
+48:	
+49:	function f11(?void $_void, ?bool $_bool, ?int $_int, ?float $_float,
+
+	function f11(?void $_void, ?bool $_bool, ?int $_int, ?float $_float,
+	                         \_ HERE
+==== 49: ERROR: nullable modifier '?' not allowed for void (PHPLint restriction)
+
+	function f11(?void $_void, ?bool $_bool, ?int $_int, ?float $_float,
+	                         \_ HERE
+==== 49: ERROR: invalid `void' type for formal argument
+
+	function f11(?void $_void, ?bool $_bool, ?int $_int, ?float $_float,
+	                                       \_ HERE
+==== 49: ERROR: nullable modifier '?' not allowed for boolean (PHPLint restriction)
+
+	function f11(?void $_void, ?bool $_bool, ?int $_int, ?float $_float,
+	                                                   \_ HERE
+==== 49: ERROR: nullable modifier '?' not allowed for int (PHPLint restriction)
+
+	function f11(?void $_void, ?bool $_bool, ?int $_int, ?float $_float,
+	                                                                   \_ HERE
+==== 49: ERROR: nullable modifier '?' not allowed for float (PHPLint restriction)
+50:			?string $_string, ?array $_array, ?callable $_callable,
+
+			?string $_string, ?array $_array, ?callable $_callable,
+	                                                           \_ HERE
+==== 50: ERROR: `callable' type not supported, assuming `mixed' instead (PHPLint limitation)
+51:			?object $_object, ?MyClass $_users_class)
+52:	{
+53:	}
+54:	
+55:	function f12(): ?void    {}                if( f12() );
+
+			?object $_object, ?MyClass $_users_class)
+	                                                        \_ HERE
+==== 51: notice: variable $_users_class assigned but never used
+
+			?object $_object, ?MyClass $_users_class)
+	                                \_ HERE
+==== 51: notice: variable $_object assigned but never used
+
+			?string $_string, ?array $_array, ?callable $_callable,
+	                                                                      \_ HERE
+==== 50: notice: variable $_callable assigned but never used
+
+			?string $_string, ?array $_array, ?callable $_callable,
+	                                                \_ HERE
+==== 50: notice: variable $_array assigned but never used
+
+			?string $_string, ?array $_array, ?callable $_callable,
+	                                \_ HERE
+==== 50: notice: variable $_string assigned but never used
+
+	function f11(?void $_void, ?bool $_bool, ?int $_int, ?float $_float,
+	                                                                   \_ HERE
+==== 49: notice: variable $_float assigned but never used
+
+	function f11(?void $_void, ?bool $_bool, ?int $_int, ?float $_float,
+	                                                   \_ HERE
+==== 49: notice: variable $_int assigned but never used
+
+	function f11(?void $_void, ?bool $_bool, ?int $_int, ?float $_float,
+	                                       \_ HERE
+==== 49: notice: variable $_bool assigned but never used
+
+	function f11(?void $_void, ?bool $_bool, ?int $_int, ?float $_float,
+	                         \_ HERE
+==== 49: notice: variable $_void assigned but never used
+
+	function f12(): ?void    {}                if( f12() );
+	                          \_ HERE
+==== 55: ERROR: nullable modifier '?' not allowed for void (PHPLint restriction)
+
+	function f12(): ?void    {}                if( f12() );
+	                                                      \_ HERE
+==== 55: ERROR: found expression of type void, expected type is boolean
+56:	function f13(): ?bool    {return FALSE;}   if( f13() );
+
+	function f13(): ?bool    {return FALSE;}   if( f13() );
+	                          \_ HERE
+==== 56: ERROR: nullable modifier '?' not allowed for boolean (PHPLint restriction)
+57:	function f14(): ?int     {return 0;}       if( f14() );
+
+	function f14(): ?int     {return 0;}       if( f14() );
+	                          \_ HERE
+==== 57: ERROR: nullable modifier '?' not allowed for int (PHPLint restriction)
+
+	function f14(): ?int     {return 0;}       if( f14() );
+	                                                      \_ HERE
+==== 57: ERROR: found expression of type int, expected type is boolean. Remember that 0 evaluates to FALSE, and any other integer value evaluates to TRUE.
+58:	function f15(): ?float   {return 1.0;}     if( f15() );
+
+	function f15(): ?float   {return 1.0;}     if( f15() );
+	                          \_ HERE
+==== 58: ERROR: nullable modifier '?' not allowed for float (PHPLint restriction)
+
+	function f15(): ?float   {return 1.0;}     if( f15() );
+	                                                      \_ HERE
+==== 58: ERROR: found expression of type float, expected type is boolean. Remember that 0.0 evaluates to FALSE and any other value evaluates to TRUE.
+59:	function f16(): ?string  {return "";}      if( f16() );
+
+	function f16(): ?string  {return "";}      if( f16() );
+	                                                      \_ HERE
+==== 59: ERROR: found expression of type string, expected type is boolean. Remember that the empty string "", the string "0" and the NULL string all evaluate to FALSE and any other string evaluates to TRUE.
+60:	function f17(): ?array   {return [];}      if( f17() );
+
+	function f17(): ?array   {return [];}      if( f17() );
+	                                                      \_ HERE
+==== 60: ERROR: found expression of type mixed[], expected type is boolean. Remember that an array with zero elements evaluates to FALSE, and an array with one or more elements evaluates to TRUE.
+61:	function f18(): ?callable{return NULL;}    if( f18() );
+
+	function f18(): ?callable{return NULL;}    if( f18() );
+	                         \_ HERE
+==== 61: ERROR: `callable' type not supported, assuming `mixed' instead (PHPLint limitation)
+
+	function f18(): ?callable{return NULL;}    if( f18() );
+	                                                      \_ HERE
+==== 61: ERROR: found expression of type mixed, expected type is boolean
+62:	function f19(): ?object  {return NULL;}    if( f19() );
+
+	function f19(): ?object  {return NULL;}    if( f19() );
+	                                                      \_ HERE
+==== 62: ERROR: found expression of type object, expected type is boolean. Remember that an object evaluates to FALSE if it has no properties, and evaluates to TRUE if it has at least one property.
+63:	function f20(): ?MyClass {return NULL;}    if( f20() );
+
+	function f20(): ?MyClass {return NULL;}    if( f20() );
+	                                                      \_ HERE
+==== 63: ERROR: found expression of type MyClass, expected type is boolean. Remember that an object evaluates to FALSE if it has no properties, and evaluates to TRUE if it has at least one property.
+64:	
+65:	// Nullable modifier applied to meta-code is forbidden:
+66:	function f21(?/*. int .*/ $x): ?/*. int .*/ { return 0; }
+
+	function f21(?/*. int .*/ $x): ?/*. int .*/ { return 0; }
+	                            \_ HERE
+==== 66: ERROR: meta-code type not allowed in this context
+
+	function f21(?/*. int .*/ $x): ?/*. int .*/ { return 0; }
+	                            \_ HERE
+==== 66: ERROR: nullable modifier '?' cannot be applied to PHPLint meta-code
+
+	function f21(?/*. int .*/ $x): ?/*. int .*/ { return 0; }
+	                                             \_ HERE
+==== 66: ERROR: meta-code type not allowed in this context
+
+	function f21(?/*. int .*/ $x): ?/*. int .*/ { return 0; }
+	                                             \_ HERE
+==== 66: ERROR: nullable modifier '?' cannot be applied to PHPLint meta-code
+67:	
+68:	/**
+69:	 * Nullable types in DocBlock.
+70:	 * @param ? void $_void
+71:	 * @param ? bool $_bool
+72:	 * @param ? int $_int
+73:	 * @param ?float $_float
+74:	 * @param ? string $_string
+75:	 * @param ? array $_array
+76:	 * @param ? object $_object
+77:	 * @param ? MyClass $_users_class
+78:	 * @return ? object
+79:	 */
+
+	function f21(?/*. int .*/ $x): ?/*. int .*/ { return 0; }
+	                            \_ HERE
+==== 66: notice: variable $x assigned but never used
+
+	@param ? void $_void
+	            \_ HERE
+==== 70: ERROR: nullable modifier '?' not allowed for void (PHPLint restriction)
+
+	@param ? bool $_bool
+	            \_ HERE
+==== 71: ERROR: nullable modifier '?' not allowed for boolean (PHPLint restriction)
+
+	@param ? int $_int
+	           \_ HERE
+==== 72: ERROR: nullable modifier '?' not allowed for int (PHPLint restriction)
+
+	@param ?float $_float
+	            \_ HERE
+==== 73: ERROR: nullable modifier '?' not allowed for float (PHPLint restriction)
+80:	function f22($_void, $_bool, $_int, $_float,
+81:			$_string, $_array,
+82:			$_object, $_users_class)
+83:	{
+84:		return NULL;
+85:	}
+86:	
+87:	class MyClass2 {
+
+			$_object, $_users_class)
+	                                       \_ HERE
+==== 82: notice: variable $_users_class assigned but never used
+
+			$_object, $_users_class)
+	                        \_ HERE
+==== 82: notice: variable $_object assigned but never used
+
+			$_string, $_array,
+	                                 \_ HERE
+==== 81: notice: variable $_array assigned but never used
+
+			$_string, $_array,
+	                        \_ HERE
+==== 81: notice: variable $_string assigned but never used
+
+	function f22($_void, $_bool, $_int, $_float,
+	                                           \_ HERE
+==== 80: notice: variable $_float assigned but never used
+
+	function f22($_void, $_bool, $_int, $_float,
+	                                  \_ HERE
+==== 80: notice: variable $_int assigned but never used
+
+	function f22($_void, $_bool, $_int, $_float,
+	                           \_ HERE
+==== 80: notice: variable $_bool assigned but never used
+
+	function f22($_void, $_bool, $_int, $_float,
+	                   \_ HERE
+==== 80: notice: variable $_void assigned but never used
+88:	
+89:		// Non-nullable types:
+90:		public void $_void;
+
+		public void $_void;
+	                          \_ HERE
+==== 90: ERROR: forbidden 'void' type for property
+91:		public bool $_bool = FALSE;
+92:		public int $_int = 0;
+93:		public float $_float = 0.0;
+94:		public string $_string;
+95:		public array $_array;
+96:		public callable $_callable;
+
+		public callable $_callable;
+	                       \_ HERE
+==== 96: ERROR: `callable' type not supported, assuming `mixed' instead (PHPLint limitation)
+97:		public object $_object;
+98:		public self $_self;
+99:		public parent $_parent;
+100:	
+101:		// Nullable types:
+102:		public ?void $_nullable_void;
+
+		public ?void $_nullable_void;
+	                                    \_ HERE
+==== 102: ERROR: nullable modifier '?' not allowed for void (PHPLint restriction)
+
+		public ?void $_nullable_void;
+	                                    \_ HERE
+==== 102: ERROR: forbidden 'void' type for property
+103:		public ?bool $_nullable_bool = FALSE;
+
+		public ?bool $_nullable_bool = FALSE;
+	                                    \_ HERE
+==== 103: ERROR: nullable modifier '?' not allowed for boolean (PHPLint restriction)
+104:		public ?int $_nullable_int = 0;
+
+		public ?int $_nullable_int = 0;
+	                                  \_ HERE
+==== 104: ERROR: nullable modifier '?' not allowed for int (PHPLint restriction)
+105:		public ?float $_nullable_float = 0.0;
+
+		public ?float $_nullable_float = 0.0;
+	                                      \_ HERE
+==== 105: ERROR: nullable modifier '?' not allowed for float (PHPLint restriction)
+106:		public ?string $_nullable_string;
+107:		public ?array $_nullable_array;
+108:		public ?callable $_nullable_callable;
+
+		public ?callable $_nullable_callable;
+	                        \_ HERE
+==== 108: ERROR: `callable' type not supported, assuming `mixed' instead (PHPLint limitation)
+109:		public ?object $_nullable_object;
+110:		public ?self $_nullable_self;
+111:		public ?parent $_nullable_parent;
+112:	
+113:		// Nullable applied to meta-code is forbidden:
+114:		public ?/*. resource .*/ $r;
+
+		public ?/*. resource .*/ $r;
+	                                   \_ HERE
+==== 114: ERROR: meta-code type not allowed in this context
+
+		public ?/*. resource .*/ $r;
+	                                   \_ HERE
+==== 114: ERROR: nullable modifier '?' cannot be applied to PHPLint meta-code
+115:		function m1(?/*. int .*/ $x): ?/*. int .*/ { return 0; }
+
+		function m1(?/*. int .*/ $x): ?/*. int .*/ { return 0; }
+	                                   \_ HERE
+==== 115: ERROR: meta-code type not allowed in this context
+
+		function m1(?/*. int .*/ $x): ?/*. int .*/ { return 0; }
+	                                   \_ HERE
+==== 115: ERROR: nullable modifier '?' cannot be applied to PHPLint meta-code
+
+		function m1(?/*. int .*/ $x): ?/*. int .*/ { return 0; }
+	                                                    \_ HERE
+==== 115: ERROR: meta-code type not allowed in this context
+
+		function m1(?/*. int .*/ $x): ?/*. int .*/ { return 0; }
+	                                                    \_ HERE
+==== 115: ERROR: nullable modifier '?' cannot be applied to PHPLint meta-code
+116:	
+117:	}
+
+		function m1(?/*. int .*/ $x): ?/*. int .*/ { return 0; }
+	                                   \_ HERE
+==== 115: notice: variable $x assigned but never used
+118:	
+119:	
+120:	/**
+121:	 * Matching DocBlock + type-hint.
+122:	 * @param int $i
+123:	 * @param string $s
+124:	 * @return float
+125:	 */
+126:	function f50(int $i, string $s): float
+127:	{
+128:		return 0.0;
+129:	}
+130:	
+131:	/**
+132:	 * Mismatching DocBlock + type-hint.
+133:	 * @param float $i
+134:	 * @param int $s
+135:	 * @return string
+136:	 */
+
+	function f50(int $i, string $s): float
+	                              \_ HERE
+==== 126: notice: variable $s assigned but never used
+
+	function f50(int $i, string $s): float
+	                   \_ HERE
+==== 126: notice: variable $i assigned but never used
+137:	function f51(int $i, string $s): float
+
+	function f51(int $i, string $s): float
+	                   \_ HERE
+==== 137: ERROR: the type of the parameter $i as declared in the DocBlock differs from the type declare in-line
+
+	function f51(int $i, string $s): float
+	                              \_ HERE
+==== 137: ERROR: the type of the parameter $s as declared in the DocBlock differs from the type declare in-line
+138:	{
+
+	{
+	 \_ HERE
+==== 138: ERROR: return type differs from that already determined in DocBlock or meta-code
+139:		return 0.0;
+140:	}
+141:	
+142:	/**
+143:	 * Matching meta-code + type-hint.
+144:	 * Return type test only; in fact, using both meta-code and type-hint on
+145:	 * arguments results in a fatal parse error.
+146:	 */
+
+	function f51(int $i, string $s): float
+	                              \_ HERE
+==== 137: notice: variable $s assigned but never used
+
+	function f51(int $i, string $s): float
+	                   \_ HERE
+==== 137: notice: variable $i assigned but never used
+147:	/*. float .*/ function f52(): float
+148:	{
+149:		return 0.0;
+150:	}
+151:	
+152:	/**
+153:	 * Mismatching meta-code + type-hint.
+154:	 * Return type test only; in fact, using both meta-code and type-hint on
+155:	 * arguments results in a fatal parse error.
+156:	 */
+157:	/*. string .*/ function f53(): float
+158:	{
+
+	{
+	 \_ HERE
+==== 158: ERROR: return type differs from that already determined in DocBlock or meta-code
+159:		return 0.0;
+160:	}
+161:	
+162:	
+163:	/**
+164:	 * Checking matching and mismatching DocBlock + type-hints in properties.
+165:	 * Here again, meta-code cannot be mixed with type-hints because it is a
+166:	 * fatal parse error.
+167:	 */
+168:	class MyClass50 {
+169:		/**
+170:		 * @var int
+171:		 */
+172:		public int $p1 = 0;
+173:	
+174:		/**
+175:		 * @var string
+176:		 */
+177:		public int $p2 = 0;
+
+		public int $p2 = 0;
+	                      \_ HERE
+==== 177: ERROR: the type declared in DocBlock 'string' differs from the type declared in-line 'int'
+178:	}
+END parsing of 7-types.php
+Overall test results: 71 errors, 0 warnings.

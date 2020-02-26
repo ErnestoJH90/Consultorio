@@ -1,0 +1,414 @@
+<HTML>
+<HEAD>
+<TITLE>PHPLint Reference Manual</TITLE>
+<META name=description content="PHPLint Reference Manual">
+<META name=author      content="icosaedro.it di Umberto Salsi">
+<META name=owner       content="icosaedro.it di Umberto Salsi">
+<META HTTP-EQUIV="Content-Language"    content="en">
+<LINK rel=stylesheet type='text/css' href='../styles.css'>
+<script type="text/javascript" src="../utils.js"></script>
+</HEAD><BODY onload="buildTOC('toc');">
+
+<h2 id="toc">Functions</h2>
+
+<p>
+A function is a chunk of code with a name and possibly some arguments.
+Once defined, a function can be called from any scope and cannot be
+re-defined. Functions cannot be nested: although PHP allows to do that,
+invoking the container function twice would cause a fatal runtime error.
+Differently from constants and variables, the
+name of a function isn't case sensitive. However, PHPLint checks the right
+spelling and raises a warning if you call a function with a name that
+does not match exactly its declaration. So, for example,
+<code>strlen()</code> cannot be written as <code>StrLen()</code> nor as
+<code>STRLEN()</code>.
+</p>
+
+<div class="note_box">
+<b>PHPLint is case-sensitive</b><br>
+The general rule in PHPLint is that all the identifiers and the keywords
+are always case-sensitive and must be written exactly as defined in the
+PHP manual. This also holds for functions, methods an classes, that are
+case-insensitive in PHP.
+</div>
+
+<p>
+The <i>signature</i> of a function consists of:
+</p>
+
+<ul>
+	<li><b>Type of the returned value.</b></li>
+	
+	<li><b>Type and passing mode of each formal mandatory argument.</b></li>
+	
+	<li><b>Type and passing mode of each default argument.</b></li>
+	
+	<li><b>Type of the variadic optional arguments.</b></li>
+	
+	<li><b>Presence of arbitrary further optional arguments.</b> PHPLint supports
+		an arbitrary number of optional arguments introducing the <tt>args</tt>
+		meta-code keyword. This feature is obsolete now that variadic parameters
+		are available.
+	</li>
+	
+	<li><b>All the errors triggered.</b></li>
+	
+	<li><b>All the checked exceptions thrown.</b></li>
+</ul>
+
+<p>
+	The following function declaration illustrates all the elements of a
+	signature using a DocBlock:
+</p>
+
+<div class="code_box"><pre>
+/**
+ * This function does nothing useful. Only illustrates all the
+ * possible elements of a function signature. We declare this
+ * function private to this package.
+ * @access private
+ * @param int $a First and only mandatory formal argument
+ * passed by value.
+ * @param int &amp; $b First and only mandatory argument passed
+ * by reference.
+ * @param int $d First and only default argument.
+ * @param string ... $z Variadic arguments, that must be all of type string.
+ * @return int Description of the returned type here.
+ * @triggers E_NOTICE Something gone wrong.
+ * @triggers E_WARNING Again, something gone wrong.
+ * @throws ErrorException Something that gone wrong and you should be
+ * aware of; you may catch it and recover or let the program crash.
+ * @throws RuntimeException Unrecoverable problem detected, possibly
+ * a bug in the program, wrong arguments, short of memory, etc.
+ * Something you should not try to recover from, anyway.
+ */
+function f($a, &amp; $b, $d = 123, ... $z)
+{
+	...
+}
+</pre></div>
+
+<p>
+	For compatibility with the previous versions of PHPLint and to support PHP
+	versions before PHP 5.6, the special meta-code <tt>/*. args .*/</tt> can still
+	be used to indicate an arbitrary number of optional parameters of a variadic
+	function. Note that <tt>args</tt> is a reserved keyword of PHPLint and cannot
+	be used for any other item, including names of variables.
+</p>
+
+
+<p>
+	The same declaration using PHPLint meta-code:
+</p>
+
+<div class="code_box"><pre>
+/*. private int .*/ function f(
+	/*. int .*/ $a,
+	/*. int .*/ &amp; $b,
+	$d = 123
+	/*. string .*/ ... $z)
+/*. triggers E_WARNING, E_NOTICE
+    throws ErrorException, RuntimeException .*/
+{
+	...
+}
+</pre></div>
+
+<p>
+The two forms, DocBlock and PHPLint meta-code, are perfectly equivalent
+from the point of view of PHPLint, and can be used also mixed together.
+The main difference is that DocBlocks allows to enter useful descriptions
+that are reported in the generated documentation. The other difference is
+that PHPLint meta-code can be used also to declare function prototypes,
+where DocBlocks are not allowed.
+</p>
+
+<p>
+Pass by reference of variadic parameters <tt>function f(&amp; ... $a){}</tt> is not supported
+because the assigned status of the variables cannot be statically validated.
+Unpacking of array parameters "f(...[1,2,3])" (which is not necessarily related
+with the variadic functions) is not supported because the number of arguments
+passed cannot be validated at runtime.
+</p>
+
+
+
+<h3>Private functions</h3>
+
+<p>
+Functions that are private to the package and that cannot be used
+by other packages can be qualified as "private" using the <code>@access private</code> line tag or the <code>/*. private .*/</code> meta-code modifier.
+Private functions are reported by the PHPLint Documentator inside
+the list of the <b>Private items</b> of the package.
+</p>
+
+
+<h3>Return type</h3>
+
+<p>
+<u>The type returned by the function is optional.</u> Normally, it can be
+guessed by PHPLint parsing the first "<b>return</b> EXPR;" statement that
+appears in the source: the resulting type of the expression gives the type
+of the function; if the expression EXPR is missing, the function does not
+return anything, then this type is <b>void</b>.
+</p>
+
+
+<h3>Formal arguments</h3>
+
+<p>
+<u>The type of the mandatory arguments must always be specified.</u>
+	PHPLint has no other way to determinate their type.
+</p>
+
+<p>
+<u>The type of a default arguments, instead, is optional</u> as it can be guessed
+	from the type of the default value assigned. If the type is specified,
+	the default value must be assignment-compatible with it.
+	In the example above, being the default value 123 an integer number, the
+	same type is assumed for the formal argument $d. For this reason, an
+	explicit declaration of type is optional in this specific case (in the
+	second example it has been omitted).
+</p>
+
+<p>
+	Generally, only if the default value
+	is NULL or the empty array, either a type or a type-cast operator on the
+	generic value must be used because NULL and the empty array do not allows
+	PHPLint to guess a specific type. This example illustrates all these cases
+	using a combination of DocBlock and PHPLint meta-code (which makes all
+	a bit confused):
+</p>
+
+<div class="code_box"><pre>
+/**
+ * @param resource $file0
+ * @param string[int] $names0
+ */
+function g(
+	$file0 = NULL,
+	/*. resource .*/ $file1 = NULL,
+	$file2 = /*. (resource) .*/ NULL,
+	$names0 = array(),
+	/*. string[int] .*/ $names1 = array(),
+	$names2 = /*. (string[int]) .*/ $names2)
+{ ... }
+</pre></div>
+
+<p>
+	In the example above, $file0, $file1 and $file2 are all resources with
+	default value NULL, while $names0, $names1 and $names2 are both arrays of
+	strings with integer keys and the empty array as default value.
+</p>
+
+<p>
+The following function is <i>variadic</i> which means it may take an arbitrary
+number of optional parameters after the mandatory parameter ($prompt) and the
+default parameter (none in this example); there optional parameters are made available
+inside the function as an array (named $params in this example):
+</p>
+
+<div class="code_box"><pre>
+/*.void.*/ function PrintArgs(/*.string.*/ $prompt, /*. mixed .*/ ... $params)
+{
+    echo $prompt, "\n";
+    foreach($params as $param)
+        echo (string) $param, "\n";
+}
+</pre></div>
+
+<p>
+Note that the type of the $params parameter in this example is mixed[int], that is
+an array of elements of type mixed and with integer indeces starting from 0.
+</p>
+
+
+
+<h3>Passing method for arguments</h3>
+
+<p>
+When a function is called, every actual argument is evaluated by the
+caller before being passed to the called function and assigned to the
+<i>formal argument</i> inside the code of the function.
+Consider, for example this chunk of code:
+</p>
+
+<div class="code_box">
+<pre>
+function f(
+    <b>/*.        int .*/</b>   $a,   # "in" only value
+    <b>/*. return int .*/</b> &amp; $b,   # "out" only by reference
+    <b>/*.        int .*/</b> &amp; $c)   # "in/out" by reference
+{
+    $b = $a + $c;
+    if( $c &gt; 0 )
+        $c = 0;
+}
+
+
+$carry = -3; # This var MUST be initialized; $result does not.
+f(1+2, $result, $carry);
+echo $result;  # 0; $carry===0
+</pre>
+</div>
+
+<p>
+There are 3 different ways to pass arguments to the function:
+</p>
+
+<ul>
+
+<li>
+	<u>"in" only value:</u> <tt>/*. int .*/ $a</tt>
+<br>The function accepts a value for this argument.
+<br>The type of this value must be assignment-compatible with the type of the
+formal argument.
+</li>
+
+<li>
+	<u>"out" only by reference:</u> <tt>/*. return int .*/ &amp; $b</tt>
+<br>The function accepts a reference to some caller's actual variable where the function promises to store some value.
+<br>PHPLint guarantees the caller's variable will be certainly assigned by the function by carefully inspecting the source code for any possible execution path.
+<br>This implies the caller's actual variable does not need to be already assigned and may even being not existing at all at the time this function is invoked; the caller's actual variable will be assigned returning from this function.
+<br>The type of the actual argument must be assignment-compatible with the type of the formal argument.
+</li>
+
+<li>
+	<u>"in/out" by reference:</u> <tt>/*. int .*/ &amp; $c</tt>
+<br>The function accepts a reference to some caller's actual variable for being accessed both in reading and writing.
+<br>This implies the actual variable MUST be already set before invoking this function; that value could get modified by the function.
+</li>
+
+</ul>
+
+<p>
+	<b>The PHPLint "<tt>return</tt>" meta-code modifier flag is not supported by the DocBlock syntax,</b> so that modified must be kept has meta-code annotation to the source code. For example, the function of the example above could be rewritten using a DocBlock as follows:
+</p>
+
+<div class="code_box">
+<pre>
+/**
+ * Example of DocBlock and parameters involving different passing methods.
+ * @param int   $a "In" only argument.
+ * @param int &amp; $b "Out" only argument ('return' in meta-code).
+ * @param int &amp; $c "In/Out" argument.
+ * @return void
+ */
+function f($a, <b>/*. return .*/</b> &amp; $b, &amp; $c)
+{
+    $b = $a + $c;
+    if( $c &gt; 0 )
+        $c = 0;
+}
+</pre>
+</div>
+
+
+<h3>Nullable types</h3>
+
+<p>With PHP 7 the nullable modifier "<tt>?</tt>" has been introduced to to indicate formal arguments and returned values that can be set to the NULL value. Without the nullable modifier, at run-time PHP could throw a fatal error if the NULL value is set rather than the declared type. The nullable modifier MUST always be followed by a type-hint, like in the following example:</p>
+
+<div class="code_box">
+<pre>
+/**
+ * Redundant DocBlock illustrating how the nullable modifier can be specified.
+ * This function does nothing useful, though.
+ * @param <b>?</b> string $s
+ * @return <b>?</b> array
+ */
+function f(<b>?</b> string $s): <b>?</b> array
+{
+	if( $s === NULL )
+		return NULL;
+	else
+		return [$s];
+}
+</pre>
+</div>
+
+<p>To comply with the PHPLint types model, some types can never be made nullable, while other type may be nullable. In more detail:</p>
+
+<dl>
+	
+	<dt><tt>?bool, ?int, ?float</tt></dt>
+	<dd>FORBIDDEN BY PHPLINT. Simple types cannot take NULL as value under PHPLint. Suggested replacement: 'mixed' type as meta-code or DocBlock or one of the container classes available under the it\icosaedro\containers namespace: BooleanClass, IntClass and FloatClass.</dd>
+
+	<dt><tt>?string, ?array, ?object, ?MyClass, ?self, ?parent</tt></dt>
+<dd>Supported. These nullable types strictly matches the corresponding PHPLint, which are always "nullable". BUG: it is still not clear if the <tt>parent</tt> type is supported by PHP or not.</dd>
+
+	<dt><tt>callable, ?callable</tt></dt>
+	<dd>NOT SUPPORTED BY PHPLINT. Suggested replacement: 'mixed' type as meta-code or
+  DocBlock.</dd>
+	
+</dl>
+
+<p>
+	The <b>void</b> type cannot be nullable.
+</p>
+
+<div class="note_box">
+<b>The nullable modifier is not reported in the generated documentation</b><br>
+Currently PHPLint checks for the usage of the nullable modifier according to the rules above, but then it discards this informations and continues applying its own types model, where some types can never be made NULL and other can always be "nullable". For this reason the generated documentation never reports the nullable modifier.
+</div>
+
+<div class="note_box">
+<b>Using type-hints is not recommended</b><br>
+For two reasons. First, several useful type-hints are still missing (namely, <b>mixed</b>, <b>resource</b>, <b>parent</b>, structured arrays E[K]). Second, annotations are still required to fill in the gaps between the current PHP type-hints and all the types that are actually involved in a PHP program, but mixing type-hints and annotations could result in unexpected run-time fatal errors:
+<br>1. Annotated methods aren't in general signature-compatible with type-hinted methods, possibly resulting in a fatal PHP parse-time error.
+<br>2. Non-nullable types cannot take NULL as a value, and this can be detected by PHP only at run-time, resulting in an unexpected fatal PHP run-time error.
+<br>3. Type-hints and nullables are a still rapidly evolving features, and this may cause backward-incompatibility issues on some systems that are still running PHP 7.3 or lower.
+<br>For these reasons using type-hint is not recommended under PHPLint.
+</div>
+
+
+<h3>Triggered errors</h3>
+
+<p>
+	<u>Listing all the triggered, non captured errors is mandatory.</u> PHPLint
+	complains if the body of the function may generate any error not declared
+	in the signature (errors can be handled using the "silencer" operator
+	<code>@</code>).
+</p>
+
+<p>
+	The following error labels are recognized:
+</p>
+
+<blockquote><pre>
+E_ERROR
+E_WARNING
+E_PARSE
+E_NOTICE
+E_CORE_ERROR
+E_CORE_WARNING
+E_COMPILE_ERROR
+E_COMPILE_WARNING
+E_USER_ERROR
+E_USER_WARNING
+E_USER_NOTICE
+E_STRICT
+E_RECOVERABLE_ERROR
+E_DEPRECATED
+E_USER_DEPRECATED
+E_ALL
+</pre></blockquote>
+
+
+<h3>Thrown exceptions</h3>
+
+<p>
+	<u>Listing all the thrown checked exceptions is mandatory.</u>
+	Listing thrown unchecked exceptions is optional. Again, PHPLint complains
+	if the body of the function may throw a checked exception not listed in the
+	<code>throws</code> section of the signature or in the <code>@throws</code>
+	line-tag of the
+	DocBlock. Listing unchecked exceptions like <code>RuntimeException</code>
+	above is allowed for documenting the behavior of the function in some
+	edge case. As explained in detail in the chapter about the exceptions,
+	unchecked exceptions should be used to report failures related to the
+	internals of the program: their generation means the program is bugged and
+	should be immediately terminated to avoid even worse disasters.
+</p>
+
+</body>
+</html>

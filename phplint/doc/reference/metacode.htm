@@ -1,0 +1,395 @@
+<HTML>
+<HEAD>
+<TITLE>PHPLint Reference Manual</TITLE>
+<META name=description content="PHPLint Reference Manual">
+<META name=author      content="icosaedro.it di Umberto Salsi">
+<META name=owner       content="icosaedro.it di Umberto Salsi">
+<META HTTP-EQUIV="Content-Language"    content="en">
+<LINK rel=stylesheet type='text/css' href='../styles.css'>
+<script type="text/javascript" src="../utils.js"></script>
+</HEAD><BODY onload="buildTOC('toc');">
+
+<h2 id=toc>PHPLint meta-code</h2>
+
+<p>
+Meta-code looks like an extension to the PHP language made of special multi-line
+comments beginning with <tt>/*.</tt> and ending with <tt>.*/</tt>; note there is
+exactly one dot after the first asterisk and one dot before the second asterisk.
+These comments have no meaning for PHP, but are accurately parsed by PHPLint,
+and are compact and can be parsed quickly by PHPLint and for this reason are
+mostly used in the modules stubs of code.
+</p>
+
+
+<h2>Examples</h2>
+
+<p>
+We already shown several examples through this reference manual we summarize here
+below:
+</p>
+
+<div class="code_box">
+<pre>// Required PHP extensions:
+/*.
+	require_module 'core';
+	require_module 'spl';
+.*/
+
+// Formal type-cast applied to the empty array:
+$names = /*. (string[int]) .*/ array();
+
+// Formal type-cast applied to NULL;
+$name = /*. (string) .*/ NULL;
+
+// Declaring the specific type of a variable:
+/*. Exception .*/ $e = new RuntimeException("i=0");
+
+// Declaring the signature of a function:
+/*. int .*/ function f(/*. string .*/ $s)
+/*. throws InvalidArgumentException, ErrorException .*/
+{
+	...
+}
+
+// Prototype of a function declared afterward:
+/*. forward string function g(int $x); .*/
+
+// Prototype of a class declared afterward:
+/*. forward
+class MyClass {
+	void function m1();
+	int  function m2(string $s);
+} .*/
+</pre>
+</div>
+
+<p>
+These examples cover only the most common usages of the PHPLint meta-code; other
+special cases are covered where this meta-code could be necessary: along with
+the <tt>switch</tt> statement to mark a missing default branch or a fall-through
+branch, to set the "unchecked" flag on a declared exception, and to support
+visibility attributes for class constants under PHP 5. A few other special
+keywords are reserved for internal use only by PHPLint to support several PHP
+versions (if_php_ver_5, if_php_ver_7, end_if_php_ver), to support class autoloading
+(pragma), and to support the magic cast() function.
+</p>
+
+
+<h2>Where meta-code is mandatory</h2>
+
+<p>
+Here is a list of the features not covered by PHP and neither by DocBlocks and that still require PHPLint meta-code:
+</p>
+
+
+<ul>
+
+<li>
+<p>
+<b>Required modules.</b>
+Every program and every library depends on some module built-in in the PHP
+interpreter. The required modules must be listed and imported with the
+<code>/*. require_module 'MODULE'; .*/</code> meta-code statement, typically
+located at the very beginning of the file. Example:
+</p>
+
+<div class="code_box"><pre>
+<b>/*.
+    require_module 'standard';
+    require_module 'session';
+    require_module 'mysql';
+.*/</b>
+</pre></div>
+<p>
+See the chapter <i>Importing modules</i> of the reference manual for more
+details.
+</p>
+</li>
+
+
+<li>
+<p>
+<b>Class autoloading.</b>
+The <code>/*. pragma 'autoload' ... .*/</code> statement makes aware PHPLint
+that the autoloading of classes is enabled. See the chapter <i>Autoloading classes</i>
+of the reference manual for more details about class autoloading.
+</p>
+</li>
+
+
+<li>
+<p>
+<b>Prototypes of functions, classes and methods.</b>
+When forward reference to functions, classes and methods are required, then a
+prototype must be used. See the chapter <i>Recursive declarations</i> of the
+reference manual for more details.
+</p>
+</li>
+
+
+<li>
+<p>
+<b>Formal arguments that return by reference.</b>
+PHPLint support a new variant of formal argument named <i>return by
+reference</i>. Formal arguments that return by reference are arguments passed
+by reference that can be unassigned at the time of the call and that the static
+analysis performed by PHPLint guaranties to be definitely assigned once the
+function or method returns. Arguments that return by reference must be marked
+with the <code>/*. return .*/</code> keyword as in this example:
+</p>
+
+
+<div class="code_box"><pre>
+/**
+ *  Example of argument that returns by reference.
+ *  @param string &amp; $a  Argument assigned by this function.
+ *  @return void
+ */
+function f(<b>/*. return .*/</b> &amp;$a)
+{
+    $a = "xyz";
+}
+
+f($x);
+echo $x;  # here $x is definitely assigned
+</pre></div>
+<p>
+See the chapter <i>Functions</i> of the reference manual for more details.
+</li>
+
+
+<li>
+<p>
+<b>Optional arguments in functions and methods.</b>
+The <code>/*. args .*/</code> meta-code keyword must be present in the list of
+formal arguments of functions and methods that that accepts an arbitrary number
+of optional arguments after the mandatory ones and after the default ones:
+</p>
+
+<div class="code_box"><pre>
+/**
+ *  Example of function that accept optional arguments.
+ *  @param int  $mandatoryArg   This is a mandatory argument.
+ *  @param int  $defaultArg     This args has a default value.
+ *  @return void
+ */
+function f($mandatoryArg, $defaultArg = 0 <b>/*. , args .*/</b>)
+{ ... }
+
+f(1, 2, 3, 4);
+</pre></div>
+<p>
+Please note the comma <i>inside</i> the meta-code in the example above.
+See the chapter <i>Functions</i> of the reference manual for more details.
+</p>
+</li>
+
+
+<li>
+<p>
+<b>Qualify the type of NULL and empty array().</b>
+Formal type-cast are required when the generic <code>NULL</code> value or the
+generic empty <code>array()</code> have to be translated to a specific type. We
+already saw several examples before. Formal type-cast are also required
+to unbox a mixed variable into an object of a specified class.
+</p>
+</li>
+
+
+<li>
+<p>
+<b>Fall-through branches and missing default branch in switch().</b>
+In the <code>switch()</code> statement two special statements were introduced
+to account for unclosed case branches and missing default branch, that is
+<code>missing_break</code> and <code>missing_default</code>. Without these
+pseudo-code statements PHPLint would complain on unclosed case branches and
+missing default branches. See the chapter <i>Control structures</i> of the
+reference manual for more details.
+</p>
+</li>
+
+
+<li>
+<p>
+<b>Unchecked exception attribute.</b>
+The attribute <code>/*. unchecked .*/</code> marks an exception as
+unchecked. See the chapter <i>Exceptions</i> of the reference manual for more
+details.
+</p>
+</li>
+
+
+</ul>
+
+
+<h2>Literal arrays</h2>
+
+<p>
+In PHP, literal arrays can be defined through the <code>array()</code>
+constructor. PHPLint parses accurately literal arrays in order to
+guess their type (both index and elements). For non-empty literal arrays,
+PHPLint guesses the structure of the array from the first entry:
+</p>
+
+
+<div class="code_box"><pre>
+array( $key =&gt; $element, ...
+</pre></div>
+
+<p>
+The type of the key is the type of the <code>$key</code> expression,
+while the type of the elements is the type of the <code>$element</code>
+expression.
+If no key is specified, the type of the key defaults to <code>int</code>,
+because this is just what PHP does. The following elements MUST have the same
+type for the key and the type of the elements MUST equal or 
+For example:
+</p>
+
+<pre>
+
+</pre>
+
+<table align=center border=1 cellspacing=0 cellpadding=5>
+
+<tr>
+<th>Literal array</th>
+<th>Guessed type</th>
+</tr>
+
+<tr>
+<td><code>array()</code></td>
+<td><code>mixed[]</code></td>
+</tr>
+
+<tr>
+<td><code>array( array( ) )</code></td>
+<td><code>mixed[int][]</code></td>
+</tr>
+
+<tr>
+<td><code>array( "a" =&gt; array( ) )</code></td>
+<td><code>mixed[string][]</code></td>
+</tr>
+
+<tr>
+<td><code>array("AA", "BB")</code></td>
+<td><code>string[int]</code></td>
+</tr>
+
+<tr>
+<td><code>array(0=&gt;"AA", 1=&gt;"BB")</code></td>
+<td><code>string[int]</code></td>
+</tr>
+
+<tr>
+<td><code>array("a"=&gt;"AA", "b"=&gt;"BB")</code></td>
+<td><code>string[string]</code></td>
+</tr>
+
+<tr>
+<td><code>array( new SOME_CLASS() )</code></td>
+<td><code>SOME_CLASS[int]</code></td>
+</tr>
+
+<tr>
+<td><code>array("a"=&gt;array(1.0,0.0), "b"=&gt;array(0.0,1.0))</code></td>
+<td><code>float[string][int]</code></td>
+</tr>
+
+<tr>
+<td><code>/*. (float[int]) .*/ array()</code></td>
+<td><code>float[int]</code></td>
+</tr>
+
+<tr>
+<td><code>array( /*. (float[int]) .*/ array() )</code></td>
+<td><code>float[int][int]</code></td>
+</tr>
+
+</table>
+
+<pre>
+
+</pre>
+
+<p>
+Note that PHPLint encounters a difficulty when the literal array is empty,
+because no keys nor elements are available and the resulting type is
+an array of unspecified structure (PHPLint will display that as <code>unknown[unknown]</code>).
+Such undefined type is likely to produce an error if
+it is assigned to some variable or passed by value to a function.
+PHPLint allows to add a <b>formal typecast</b> in front to the empty array. The
+formal typecast <code>/*.(T).*/</code> tells to PHPLint which is the expected
+structure of the empty array.
+
+<p>
+The same holds when the NULL value is involved in an expression: NULL is a
+special value that is assignment-compatible with every array, but it cannot
+provide to PHPLint any information about the real structure of the array.<br>
+In these cases the correct type should be indicated through a formal
+typecast, like in these examples:
+</p>
+
+
+<div class="code_box"><pre>
+
+&lt;?php
+/**
+ *  List of names, initially empty.
+ *  Here using PHPLint formal type-cast.
+ */
+$names = <b>/*. (string[int]) .*/</b> array();
+
+/**
+ *  List of names, initially NULL.
+ *  Here using DocBloc's line tag.
+ *  @var <b>string[int]</b>
+ */
+$names2 = NULL;
+
+/**
+ *  Matrix of coefficients, initially empty
+ */
+$m = <b>/*. (float[int][int]) .*/</b> array();
+
+/**
+ *  Prints a list of names. This function requires an array of a well
+ *  defined structure.
+ *
+ * @param string[int] $a  List of names.
+ * @return void
+ */
+function print_names($a)
+{
+    echo count($a), " names in list:\n";
+    for($i=0; $i&lt;count($a); $i++)
+        echo $a[$i], "\n";
+}
+
+
+print_names( array( "Foo", "Bar" ) );
+/*
+ *  Here the type of the actual argument is correctly guessed by PHPLint
+ *  to be string[int], which matches exactly the type of the formal
+ *  argument $a.
+ */
+
+print_names( <b>/*. (string[int]) .*/</b> array() );
+/*
+ *  Note the empty list and the formal typecast.  Without this formal
+ *  type-cast PHPLint would raise an error because the type of the array
+ *  unknown[unknown] would be incompatible with any passed actual value.
+ */
+
+print_names( NULL );
+/*
+ *  NULL is assignment-compatible with the type of the formal argument,
+ *  so no format typecast is required. For the record, since count(NULL)
+ *  gives 0, nothing will be printed by the function.
+ */
+?&gt;
+</pre></div>
+
+</body>
+</html>

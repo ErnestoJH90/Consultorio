@@ -1,0 +1,1889 @@
+<HTML>
+<HEAD>
+<TITLE>PHPLint Tutorial</TITLE>
+<META name=description content="PHPLint Tutorial">
+<META name=author      content="icosaedro.it di Umberto Salsi">
+<META name=owner       content="icosaedro.it di Umberto Salsi">
+<META HTTP-EQUIV="Content-Language"    content="en">
+<LINK rel=stylesheet type='text/css' href='styles.css'>
+<script type="text/javascript" src="utils.js"></script>
+</HEAD>
+<BODY onload="buildTOC('toc');">
+<H1><IMG src="phplint.png">&nbsp;PHPLint Tutorial</H1>
+
+<p align=right>
+Updated: 2019-01-25
+</p>
+
+<p>
+This (not so) brief tutorial explains how to use the PHPLint program, how to use the PHPLint Standard Library, and how to make your programs PHPLint-compliant. We assume here the basic installation of the PHPLint package has been done as explained in the README.htm file.
+</p>
+
+
+<h2 id="toc">Contents</h2>
+
+
+
+<h2>Hello, world!</h2>
+
+<p><b>Create a file named</b> <tt>hello.php</tt> under the PHPLint directory using your preferred text editor containing this source code:</p>
+
+<blockquote><pre>&lt;?php
+echo "Hello, world!\n";</pre></blockquote>
+
+<p>then open a terminal, change the directory to the PHPLint directory, and type this command to <b>execute the program above:</b></p>
+
+<blockquote><pre>(Linux) ./php hello.php
+(Windows) php hello.php</pre></blockquote>
+
+<p>This command starts the php (Linux) or php.bat (Windows) script located under the PHPLint directory, which in turn starts the PHP CLI interpreter, which in turn loads and executes our program, finally displaying what we expect to see.</p>
+
+<p><b>To validate the source</b> with PHPLint, type this command:</p>
+
+<blockquote><pre>(Linux) ./phpl hello.php
+(Windows) phpl hello.php</pre></blockquote>
+
+<p>This command starts the phpl (Linux) or phpl.bat script under the same directory of PHPLint, which in turn starts the PHPLint program, and finally the PHPLint program parses our source line by line, character by character displaying the following report:</p>
+
+<blockquote><pre>BEGIN parsing of hello.php
+1:      &lt;?php
+2:      echo "Hello, world!\n";
+END parsing of hello.php
+Overall test results: 0 errors, 0 warnings.</pre></blockquote>
+
+<p>So, validation of the source code passed with zero errors and zero warning messages. <u>Errors</u> are issues you must fix. <u>Warnings</u> are issues PHPLint cannot decide whether they are or are not actual errors, but that you should fix anyway.</p>
+
+
+<fieldset style="margin: 2em;">
+	<legend>
+		<b>You may put your programs anywhere in your hard disk</b>
+	</legend>
+	In the examples of this tutorial, sample programs are always assumed to be saved under the PHPLint base directory to make easier to type-in the path of the commands and to make easier to include files from the <tt>stdlib/</tt> directory. Advanced users may want to add the PHPLint directory to their PATH environment variable so that the php and the phpl scripts be readily available from any working directory without the need to type boring long paths.
+</fieldset>
+
+
+
+
+<h2>Data types</h2>
+
+<p>
+Every value under PHP has a specific type. PHPLint pushes this concept even further: every variable and every expression must have a statically evaluable type. PHPLint supports the following types:
+<tt>null</tt>,
+<tt>boolean</tt>,
+<tt>int</tt>,
+<tt>float</tt>,
+<tt>string</tt>,
+<tt>resource</tt>,
+<tt>array</tt>,
+<tt>object</tt>,
+<tt><i>CLASS</i></tt>,
+<tt>void</tt>.
+</p>
+
+
+<center>
+<table width="70%" cellspacing=0 cellpadding=3 border=1>
+
+<tr>
+<th>Name</th>
+<th>Literal values</th>
+<th>Description</th>
+</tr>
+
+<tr>
+<td valign=top><tt>null</tt></td>
+<td valign=top><tt>NULL</tt></td>
+<td valign=top>
+There is no point to declare something of this type, as it can take only one value: NULL. The NULL value, though, is a bit special and can be assigned to other types too; see below.
+</td>
+</tr>
+
+<tr>
+<td valign=top><tt></tt></td>
+<td valign=top><tt>
+</tt></td>
+<td valign=top>
+The null type has only one possible value, that is the constant <tt>NULL</tt>. There is no point in declaring one variable of this type as it can take only a single value: <tt>NULL</tt>. The <tt>NULL</tt> value is a bit special, though, because it can be assigned to several "nullable" type we will explain next.
+</td>
+</tr>
+
+<tr>
+<td valign=top><tt>boolean</tt></td>
+<td valign=top><tt>
+FALSE
+<br>TRUE
+</tt></td>
+<td valign=top>
+Under PHPLint there is no automatic conversion from other types to boolean, so zero and one are not equivalent to false and true; you must always write explicit expressions generating proper boolean values.
+</td>
+</tr>
+
+<tr>
+<td valign=top><tt>int</tt></td>
+<td valign=top><tt>
+0377
+255
+0xff
+-98765432
+</tt></td>
+<td valign=top>
+Integer values are internally represented as signes binary words, 2-complement, 32-bits (on 32-bits processors) or 64-bits (on 64-bits processors).
+</td>
+</tr>
+
+<tr>
+<td valign=top><tt>float</tt></td>
+<td valign=top><tt>
+3.14
+-1.234e5
+</tt></td>
+<td valign=top>
+Are floating-point numbers internally represented using the IEEE 754 format.
+</td>
+</tr>
+
+<tr>
+<td valign=top><tt>string</tt></td>
+<td valign=top><tt>
+"abc\r\n"
+<br>""
+<br>NULL
+</tt></td>
+<td valign=top>
+A string is a sequence of zero or more bytes. PHPLint also allows the NULL value to be assigned to a variable of type string.
+</td>
+</tr>
+
+<tr>
+<td valign=top><tt>resource</tt></td>
+<td valign=top><tt>
+fopen("data.txt", "rb")
+<br>NULL
+</tt></td>
+<td valign=top>
+A resource is any internal data structure whose content is known only to the PHP engine. PHPLint also allows the NULL value to be assigned to a variable of this type.
+</td>
+</tr>
+
+<tr>
+<td valign=top><tt>array
+<br>mixed[]
+<br>string[int]
+<br>int[string]</tt></td>
+<td valign=top><tt>
+array()
+<br>array()
+<br>array("a","b","c")
+<br>array("one"=&gt;1,"two"=&gt;2)
+<br>NULL
+</tt></td>
+<td valign=top>
+The general syntax of an array type is <tt>E[K]</tt>, where <tt>E</tt> is the type of the elements and <tt>K</tt> is the type of the keys (either int or string). PHPLint also allows the NULL value to be assigned to a variable of this type.
+The bare <tt>array</tt> is simply a synonym for <tt>mixed[]</tt> which is an array of values of any type with keys that can be both int and string.
+</td>
+</tr>
+
+<tr>
+<td valign=top><tt>object
+<br><i>CLASS_NAME</i></tt></td>
+<td><tt>
+new Exception("error!")
+<br>new MyClass()
+<br>NULL
+</tt></td>
+<td>
+<tt>object</tt> represents any object of any class. Actually, such a base class does not really exist in PHP; it is an internal abstraction of PHPLint.
+</td>
+</tr>
+
+<tr>
+<td valign=top><tt>mixed</tt></td>
+<td>&nbsp;</td>
+<td>
+Any of the types above. Under PHPLint you can't do pretty nothing with a value of such type.
+</td>
+</tr>
+
+<tr>
+<td valign=top><tt>void</tt></td>
+<td>&nbsp;</td>
+<td>
+Special type that can be used under PHPLint only to declare the return type for functions and methods that do not return anything.
+</td>
+</tr>
+
+</table>
+</center>
+
+
+
+
+<h2>Practicing with expressions and data types</h2>
+
+<p>The simplest way to discover how PHPLint recognizes the type of an expression, is to write a simple test program. Create a file named <tt>types.php</tt> under the PHPLint directory containing this source code:</p>
+
+<blockquote><pre>&lt;?php
+if( 3.14 );</pre></blockquote>
+
+<p>By executing this program, it simply does not display anything: PHP will evaluate the expression under the <tt>if(EXPR)</tt> statement as TRUE because any number different from zero evaluates like "true" inside <tt>if()</tt>, and then it will execute an empty statement, so basically doing nothing. Things go in a completely different way if you validate this source with PHPLint:</p>
+
+<blockquote><pre>BEGIN parsing of types.php
+1:      &lt;?php
+2:      if( 3.14 );
+
+        if( 3.14 );
+                  \_ HERE
+==== 2: <b>ERROR: found expression of type float, expected type is boolean.</b>
+Remember that 0.0 evaluates to FALSE and any other value evaluates to TRUE.
+END parsing of types.php
+Overall test results: 1 errors, 0 warnings.</pre></blockquote>
+
+<p>PHPLint is more strict on how types can be used, and always pretends the expression under the <tt>if(EXPR)</tt> be of boolean type, while 3.14 it is not. This is one of the cases in which <b>a perfectly acceptable and working PHP program could be rejected by PHPLint.</b> And in fact, most PHP programs, even those that are proved being perfectly working, but that were not written with PHPLint in mind, fail the PHPLint validation.</p>
+
+<p>Vice-versa, <b>a source code that passes PHPLint validation is always a valid PHP program,</b> that is it can be parsed, compiled and executed by PHP.</p>
+
+<p>The error message above tells us PHPLint detected the type of the expression being <b>float</b>, which is expected as 3.14 is a floating-point number. You may try with some other expression too see how PHPLint behaves, for example:</p>
+
+<center>
+	<table border=1 cellpadding=5 cellspacing=0>
+		<tr><th>Basic type</th><th>Sample expressions</th><th>Notes</th></tr>
+		
+		<tr><td><tt>null</tt></td>
+		<td><tt>NULL</tt></td>
+		<td>The null type has only one possible value: NULL.</td></tr>
+		
+		<tr><td><tt>boolean</tt></td>
+		<td><tt>3.14 &gt; 0</tt><p><tt>12 + 34 != 0 &amp;&amp; 2 &lt;= 3</tt></td>
+		<td>Here PHPLint is happy: no error.</td></tr>
+		
+		<tr><td><tt>int</tt></td>
+		<td><tt>12 + 0x34 - 075</tt></td>
+		<td>When both integers and floating point numbers are involved,
+		<br>integers are promoted to float, so the final result is float.</td></tr>
+		
+		<tr><td><tt>float</tt></td>
+		<td><tt>-0.3141592e1 * 3<br>6 / 2</tt></td>
+		<td>Note that 6/2 gives exactly int 3 at run-time, but in general division may return either int or float depending on the current values of the operands, so PHPLint in general assumes a division returns "mixed"; to get an int result, you may use a type-cast like in <tt>(int)($a/$b)</tt> or a (float) type-cast if the intended result has to be float.</td></tr>
+		
+		<tr><td><tt>string</tt></td>
+		<td><tt>"test" . "ting"</tt></td>
+		<td></td></tr>
+		
+		<tr><td><tt>mixed</tt></td>
+		<td><tt>$_GET["name"]</tt></td>
+		<td>The "mixed" type does not really exist in PHP; it is a
+		fictional type you may use under PHPLint for any variable
+		that could contain anything. In this case, <tt>$_GET[]</tt>
+		could be a string or an array of strings, which are two
+		completely different kind of types under PHPLint.</td></tr>
+	
+	</table>
+</center>
+
+
+
+<h2>Requiring PHP modules</h2>
+
+<p>The PHPLint program knows nothing about the hundreds and hundreds of functions, classes and other items provided by the PHP libraries, not even functions as common as <tt>trim()</tt> or <tt>fopen()</tt> are recognized. Lets try modifying our <tt>types.php</tt> program above by introducing, for example, the <tt>trim()</tt> function:</p>
+
+<blockquote><pre>&lt;?php
+if( trim("something") );</pre></blockquote>
+
+<p>Validation fails with a quite surprising error:</p>
+
+<blockquote><pre>BEGIN parsing of types.php
+1:      &lt;?php
+2:      if( trim("something") );
+
+        if( trim("something") );
+                 \_ HERE
+==== 2: <b>ERROR: unresolved function trim</b>
+END parsing of types.php
+Overall test results: 1 errors, 0 warnings.</pre></blockquote>
+
+<p>"Unresolved function trim" means the PHPLint program knows nothing about that function, so it has no idea of what that function may return. Note that PHPLint here does not complain about the type of the expression inside the <tt>if()</tt> statement simply because it already complained being unable to detect the type of the expression in the first place, which is "unknown" (yes, there is also an "unknown" type inside the PHPLint program, but it is only for internal use of the program just to track down these errors).</p>
+
+<p>To make PHPLint aware the <tt>trim()</tt> function does actually exist, which types of arguments it takes, how many of them, and which type of value it returns, what you need to do is to add a very specially formatted comment inside the source code:</p>
+
+<blockquote><pre>&lt;?php
+<b>/*. require_module 'core'; .*/</b>
+if( trim("something") );</pre></blockquote>
+
+<p>This special comment contains <b>PHPLint meta-code</b> which has meaning only for PHPLint and is otherwise ignored by PHP at run-time. Note that there is exactly one dot after the opening <tt>/*</tt> and another dot before the closing <tt>*/</tt>. Note that the name of the module to include is enclosed between single quotes, NOT double quotes. In this case, the <tt>require_module</tt> PHPLint meta-code statement tells to PHPLint we are willing to use the <tt>core</tt> PHP module, whose exact content is defined in the <tt>modules/core.php</tt> file. These modules files ARE NOT ACTUAL PHP programs; they are instead stubs of PHP-like source code only PHPLint may read and understand. The <tt>core</tt> module contains the definitions of hundreds of constants, functions and classes any PHP program needs.</p>
+
+<p>Validation now gives us the expected result:</p>
+
+<blockquote><pre>BEGIN parsing of types.php
+1:      &lt;?php
+2:      /*. require_module 'core'; .*/
+3:      if( trim("something") );
+
+        if( trim("something") );
+                               \_ HERE
+==== 3: ERROR: found expression of type string, expected type is boolean.
+Remember that the empty string "", the string "0" and the NULL string all
+evaluate to FALSE and any other string evaluates to TRUE.
+END parsing of types.php
+==== ?:?: notice: required module core.php
+Overall test results: 1 errors, 0 warnings.</pre></blockquote>
+
+<p>No surprise here: PHPLint now knows about the core module, now knows about the <tt>trim()</tt> function, and can happily inform us that the result of the expression is a string, and that strings are not boolean values. As an extra bonus, PHPLint inform us about how PHP would evaluate that expression at run-time just in case you had to execute the program despite the outcome of the validation.</p>
+
+<p>By looking at the <tt>modules/</tt> directory, you may note several other interesting modules you may want to use next, each module corresponding to some specific PHP extension. Among these, we note: array, date, dom, file, gd, hash, iconv, json, math, mbstring, mysqli, pcre, pdo, pgsql, session, sockets, sqlite, and many others.</p>
+
+<p>Of particular interest is the <tt>standard</tt> module, which in turn requires array, core, crypt, date, file, locale, math, networking, phpinfo, standard_reflection, spl. This standard module alone covers all needs of most the applications and could be handy if you are in an hurry, although it is not not recommended to do so for the reason explained below:</p>
+
+
+<fieldset style="margin: 2em;">
+	<legend>
+		<b>Be spare in which modules you require</b>
+	</legend>
+	Parsing modules adds a bit of overhead to the PHPLint program, has it has to open, read and parse all the content of each required module, and some are quite big. Moreover, PHPLint tracks down which required modules are then actually used, and reports with a notice those that are not. Finally, PHPLint reports in the generated documentation which modules (aka "extensions") your program relies on, helping users to deploy your program and configure their installation properly according to the requirements. For these reasons, it is recommended to include all and only those modules your program actually needs.
+</fieldset>
+
+
+
+<h2>Defining your own functions, or DocBlocks basics</h2>
+
+<p>Create a new test program named <tt>functions.php</tt> under the PHPLint base directory containing this code:</p>
+
+<blockquote><pre>&lt;?php
+
+/*.
+	require_module 'core';
+	require_module 'spl';
+.*/
+
+/**
+ * Skeleton of a function that adds two integer numbers.
+ * @param int $a First term to add.
+ * @param int $b Second term to add.
+ * @return int Resulting sum.
+ * @throws RuntimeException Integer precision overflow.
+ */
+function add($a, $b)
+{
+	$sum = $a + $b;
+	if( ! is_int($sum) )
+		throw new RuntimeException("overflow");
+	return $sum;
+}
+
+
+echo add(1, 2);
+echo add(PHP_INT_MAX, PHP_INT_MAX);</pre></blockquote>
+
+<p>The <tt>add($a,$b)</tt> function takes two arguments of type int and retrieves their sum. Note the so-called <b>DocBlock</b> (documentation block) preceeding the actual function. A DocBlock is a multi-line comment starting with the special symbol <tt>/**</tt>: two asterisks tells to PHPLint this multi-line comment has a special meaning as it is, in fact, a DocBlock. PHPLint carefully parses the content of a DocBlock, and it is particularly interested into parsing the lines beginning with the AT character <tt>@</tt>; those lines are followed by some special keyword, possibly some argument and then possibly a comment. Lets look at these lines more in details:</p>
+
+<blockquote>
+	
+	<p><b><tt>@param int $a</tt></b>
+	<br>tells there is a parameter (aka "argument") named $a of type int. PHPLint now knowns the type of $a and checks it is used properly. Moreover, now PHPLint knows this function takes int as a first argument of the function and will reject anything else is passed to it.</p>
+	
+	<p><b><tt>@param int $b</tt></b>
+	<br>tells the same about the $b argument.</p>
+	
+	<p><b><tt>@return int</tt></b>
+	<br>tells this function returns a value of type int. Functions that do not return any value should be declared returning "void". If the @return declarations is omitted, usually PHPLint can detect the returned type from the first <tt>return</tt> statement found inside the function.</p>
+	
+	<p><b><tt>@throws RuntimeException</tt></b>
+	<br>tells this function may throw the RuntimeException exception imported from the spl module. In our case this could happen if the arguments are very big numbers whose sum exceeds the int capacity. Note that int is 4 bytes long on 32-bits machines, and 8 bytes long on 64-bits machines.</p>
+	
+</blockquote>
+
+<p>Note the $sum local variable inside the function; its type is detected to be int by PHPLint because it is the sum of two int numbers, and (normally) a sum of two int numbers gives back an int value. But at run-time, things could go in the wrong way, the sum could exceed the int capacity, and PHP might promote the result to a float value, but with reduced precision, that is the result is rounded to the closest value a float can hold. <b>PHPLint cannot prevent all that from happening at run-time,</b> so we added a test to check at run-time the actual type of the result.</p>
+
+<p>Validate and execute this program to see what happens:</p>
+
+<blockquote><pre>3PHP Fatal error:  Uncaught RuntimeException: overflow in
+C:\wamp\phplint\functions.php:19
+Stack trace:
+#0 C:\wamp\phplint\functions.php(25): add(2147483647, 2147483647)
+#1 {main}
+  thrown in C:\wamp\phplint\functions.php on line 19</pre></blockquote>
+
+<p>Q: Could you guess the word size of the machine where I run this test?
+<br>R: 32.</p>
+
+
+<fieldset style="margin: 2em;">
+	<legend>
+		<b>Integer arithmetic overflow cannot be prevented by PHPLint</b>
+	</legend>
+	Although in some very special simple case like that above a validator program could (at least in theory) detect a possible overflow problem, in general this detection cannot be done "statically" because the exact value of an expression is known only at run-time. In most programming languages (C, C++, Java) integer overflow simply gives wrong values; in other systems (C#) programmer may, if they want, detect these events at run-time; in PHP the result becomes an approximated floating point number. In any case and on any system, it is the programmer responsibility to properly handle these events. So we must live with this issue by carefully coding our programs in such a way that overflows never happen, or check at run-time the result of each expression otherwise.
+</fieldset>
+
+
+
+
+<h2>Requiring and including other packages</h2>
+
+<p>
+Use require_once to include other packages.
+The alternatives <code>require</code>, <code>include</code> and
+<code>include_once</code> are not reliable ways to include code.
+<code>include</code> is commonly used to include stubs of HTML code;
+often is used to build the header and the footer of a WEB page, for
+example, but PHPLint does not parse recursively these files. The path of the
+required package <b>must be absolute</b>: this is the only safe way to ensure
+the referred file will be found either by PHPLint and by PHP, independently
+from any other external parameter or configuration. The magic constant
+<code>__DIR__</code> comes into help here, because allows to write
+a path relative to the current source file:
+</p>
+
+<blockquote>
+<code>require_once __DIR__ . "/../../AnotherPackage.php";</code>
+</blockquote>
+
+<p>
+You may also use constants, provided that the resulting expression be
+statically evaluable:
+</p>
+
+<blockquote>
+<pre>
+const
+	LIBS = __DIR__ . "/../../mylibs",
+	PKGS = __DIR__ . "/packages";
+require_once LIBS . "/MyClass1.php";
+require_once LIBS . "/MyClass2.php";
+require_once LIBS . "/MyClass3.php";
+require_once PKGS . "/MyPackage1.php";
+</pre>
+</blockquote>
+
+
+<fieldset style="margin: 2em;">
+<legend><b>The expression giving the require_once path MUST be statically evaluable</b></legend>
+Do not use variables or functions inside the expression, because the resulting expression cannot be evaluated by PHPLint "statically". For example, DO NOT use expressions like these:
+<br>&emsp;<tt>require_once $my_package;   /* WRONG */</tt>
+<br>&emsp;<tt>require_once $_GET['pkg'];   /* WRONG */</tt>
+<br>&emsp;<tt>require_once dirname(__FILE__) . "/MyPackage.php";   /* WRONG */</tt>
+<br>By the way, note that <tt>dirname(__FILE__)</tt> is just <tt>__DIR__</tt>, so there in no need to use a function.
+</fieldset>
+
+<fieldset style="margin: 2em;">
+<legend>
+<b>Always import the modules and the packages your source depends on</b>
+</legend>
+PHPLint will complains with an error if the source code refers to any constant, variable, function or class he does not know, so you must really add a <tt>/*. require_module 'MODULE'; .*/</tt> PHPLint meta-code statement or a <tt>require_once PACKAGE;</tt> PHP statement for EACH module and EACH package your source code depends on. This also implies two important things:
+<br>&emsp;1. Each source file can be validated by PHPLint separately by its own.
+<br>&emsp;2. You can require blindly each package and it will resolve automatically its dependencies.
+<br>An useful alternative is the <u>class autoloading mechanism</u> described in the reference manual; class autoloading saves you from the boring task to list all the required packages, and it is more efficient at
+runtime.
+</fieldset>
+
+
+
+<h2>The Type will be with you, always</h2>
+
+
+<h3>Variables have a statically assigned type</h3>
+
+<p>
+In PHP a variable can hold any type of value. So, for example, you can assign
+to a variable $foo a number, then later you can assign to the same variable
+a string or also any other type of data.
+A given function may return several types of values depending
+on the arguments that are passed. Programs that use this "polymorphic"
+behavior are difficult to read and difficult to understand, and often they
+require the interpreter to do some expensive conversion at run-time with
+performance penalties.
+</p>
+
+<p>
+In PHPLint things goes in a completely different way. Each variable,
+each function argument, and each value returned by a function must have
+a well defined type. PHPLint does not require the type of every thing be
+explicitly defined, since in most of the cases this type can be guessed from
+the code itself. For example, by assigning 123 to a variable clearly makes that
+variable of the type <code>int</code>, and returning a string from a function
+clearly makes this function of the type <code>string</code>. Nevertheless,
+there are cases where a type must be explicitly indicated, as we will see
+in the examples below.
+</p>
+
+
+<h3>Variables must be initialized with a value before being used</h3>
+
+<p>
+Some PHP programmers rely on the fact that an un-initialized variable
+behave like the zero number or the empty string, depending on the context
+where this variable appears. That's not a good programming style. Every
+variable must have a value (and then, a type) before being used.
+PHPLint complains with an error if a variable used in an expression is unknown.
+Sometimes PHPLint also complains that a variable <i>might</i> not be initialized
+depending on the order of execution of the statements (this is called <i>flow execution analysis</i>).
+</p>
+
+
+
+<h3>The type of a variable cannot change</h3>
+
+<p>
+If a variable has been determined to belong to some specific type, it must be used according to its type. You cannot assign a string to a variable already known to be of type <code>int</code>:
+</p>
+
+<blockquote>
+<pre>
+$i = 123;
+$i = "hello";  # &lt;== ERROR
+</pre>
+</blockquote>
+
+
+
+<h3>$_GET $_POST and $_REQUEST are arrays of mixed values</h3>
+
+<p>
+The superglobal arrays $_GET $_POST and $_REQUEST have structure
+<code>mixed[string]</code> that is arrays of arbitrary values with
+keys of type <code>string</code>. Typically these elements are strings, but in some
+cases they can be also arrays of strings, or array of arrays of strings,
+and so on.	Your program must ensure the values gathered from these array
+be of the expected type.  To ensure that, a <i>value type-cast</i> is needed
+at run-time:
+</p>
+
+<blockquote><pre># Example: acquiring the login mask:
+$name = <b>(string)</b> $_POST["name"];
+$pass = <b>(string)</b> $_POST["pass"];
+
+# Example: acquiring optional URL parameter:
+$chapter = 0; # show table of contents by default
+if( isset($_GET["chapter_number"]) )
+	$chapter = <b>(int)</b> $_GET["chapter_number"];</pre></blockquote>
+
+<p>
+By the way, these value type-cast applied to a <code>mixed</code> value
+make PHPLint aware of the actual type expected by the program and make the
+program safer because data coming from the remote client could be arbitrary
+values.
+</p>
+
+
+
+
+
+
+
+
+<h2>Type model of PHPLint in detail</h2>
+
+<p>
+PHP already has "types", because at runtime every value and every variable
+belongs to a well specific type. To the proper PHP types, PHPLint adds the
+<code>mixed</code> type, which does not really exist in PHP but is used
+extensively in its official documentation to indicate "any type of value".
+</p>
+
+<pre>
+
+</pre>
+<center>
+	<img src="reference/phplint-types.svg"><p>
+	<b>Types under PHPLint. Arrows indicate assignment compatibility.</b>
+</center>
+<pre>
+
+</pre>
+
+<h3>The mixed type</h3>
+
+<p>
+Under PHPLint, <code>mixed</code> is a box
+inside which any type of data can be <b>boxed</b>. Variables and parameters
+of this type can carry any type of data. <code>mixed</code> values
+can be assigned to other <code>mixed</code> variables,
+or can be compared with the strict comparison operators <code>===</code>
+and <code>!==</code> but nothing really useful can be made until the value
+they contain is extracted to some specific type, that is, gets unboxed.
+</p>
+
+<p>
+<b>Unboxing,</b> under PHPLint, requires to apply either one of the PHP
+value-conversion operators, for example
+</p>
+
+<blockquote><code>$name = (int) $_GET["name"];</code></blockquote>
+
+<p>
+or apply the magic PHPLint type-cast function <code>cast(T,V)</code>:
+</p>
+
+<blockquote>
+	<code>$name = cast("string", $_GET["name"]);</code>
+</blockquote>
+
+<p>
+Thre are at least two important differences between PHP value-conversion
+operators and the PHPLint <code>cast()</code> magic function.
+One difference is that the PHP's value-conversion operators
+<code>(<i>TYPE</i>)</code> actually
+convert <code>mixed</code> to a value of the specified type, while the
+<code>cast(T,V)</code> type-cast magic function merely checks at runtime
+the actual type and throws <code>CastException</code> if it does not match
+those expected, then returns the unboxed value, unmodified.
+</p>
+
+<p>
+The other
+difference is that the <code>cast(T,V)</code> function can check any type
+of data PHPLint can understand, including arrays (with specified keys and
+elements) and objects. The <code>cast()</code> function is implemented in the
+<code>cast.php</code> package available under the <code>stdlib</code>
+directory.
+</p>
+
+<p>
+The <code>cast()</code> magic function serves to two purposes, one at
+validation time, and one at runtime.
+Take for example this statement:
+</p>
+
+<blockquote>
+	<code>$names = cast("string[string]", $_GET);</code>
+</blockquote>
+
+<p>
+It has two effects:
+</p>
+
+<ol>
+	<li>
+		<b>At validation time,</b> tells to PHPLint that <code>$names</code>
+		is an array of strings with keys of type string. This resolves
+		the problem from the point of view of the static validation.
+	</li>
+	
+	<li>
+		<b>At runtime,</b> the <code>cast()</code> function will check
+		the value <code>$_GET</code> element by element and key
+		by key, and will throw <code>CastException</code> if it does not
+		match the expected type, so rejecting the invalid value.
+		This resolves the safety and security problems
+		that might arise if unexpected types of values enter the program.
+	</li>
+</ol>
+
+
+
+<h3>The array type</h3>
+
+<p>
+As we already said, arrays under PHPLint may have a well defined type for the
+key and for the elements. To specify the structure of the array, PHPLint
+introduces the special notation <code>E[K]</code> where <code>E</code> is
+the type of the element and <code>K</code> is the type of the key (that is,
+<code>int</code> or <code>string</code>). So, for example, a list of names
+with integer index is represented by
+</p>
+
+<blockquote><code>string[int]</code></blockquote>
+
+<p>
+while an associative array name-to-object might be
+</p>
+
+<blockquote><code>Person[string]</code></blockquote>
+
+<p>
+The empty key is also allowed, which means unspecified key integer and/or
+string; if, moreover, the type of the elements if <code>mixed</code>,
+we end with the more generic type of array:
+</p>
+
+<blockquote><code>mixed[]</code></blockquote>
+
+<p>
+Several indeces can be specified. A rotational matrix:
+</p>
+
+<blockquote><code>float[int][int]</code></blockquote>
+
+<p>
+These types can be used in several contexts, lets see some examples.
+Explicitly declaring the type of a variable:
+</p>
+
+<blockquote><code>
+/*. resource[int] .*/ $files = NULL;<br>
+/*. string[int] .*/ $names = array();
+</code></blockquote>
+
+<p>
+Formal-typecast to specify the structure of an empty array or the NULL value,
+with the same effect we had above:
+</p>
+
+<blockquote><code>
+$files = /*. (resource[int]) .*/ NULL;<br>
+$names = /*. (string[int]) .*/ array();
+</code></blockquote>
+
+<p>
+Defining the signature of a function (here using a DocBlock):
+</p>
+
+<blockquote><pre>
+/**
+ * Returns the array of strings in alphabetical order.
+ * @param string[int] $a Unordered array of strings.
+ * @return string[int] Same strings, but in alphabetical order.
+ */
+function mySort($a){
+	if( $a === NULL )
+		return NULL;
+	for($i = count($a)-1; $i &gt;= 1; $i--){
+		for($j = $i-1; $j &gt;= 0; $j--){
+			if( strcmp($a[$j], $a[$i]) &gt; 0 ){
+				$t = $a[$i];  $a[$i] = $a[$j];  $a[$j] = $t;
+			}
+		}
+	}
+	return $a;
+}
+</pre></blockquote>
+
+<p>
+From the examples above, emerges how some types allows NULL as a value,
+and nothing prevent, at runtime, to access an entry of the array that does not
+exists. That's why <b>it is strongly recommended to always require the <code>errors.php</code> package</b> available under the <code>stdlib</code>
+directory:
+</p>
+
+<blockquote><pre>
+require_once __DIR__ . "/errors.php";
+</pre></blockquote>
+
+<p>
+That package sets the maximum level of error reporting and then turns any error,
+even the smallest E_NOTICE, into an exception that terminates the program.
+Regular functions may throw <tt>ErrorException</tt> if their signature triggers any error; language constructs, for example array index selectors, throw <tt>InternalException</tt> instead. This dramatically improves the safety and the security of a program how can be clearly seen from the following examples:
+</p>
+
+<blockquote><pre>
+&lt;?php
+require_once __DIR__ . "/errors.php";
+/*. string[int] .*/ $a = array("a");
+echo $a[3];
+
+<b>Output:</b>
+Uncaught InternalException: E_NOTICE: Undefined offset: 3 in C:\wamp\phplint\tes
+t.php:4
+Stack trace:
+#0 C:\wamp\phplint\test.php(4): phplint_error_handler(8, 'Undefined offse...', '
+C:\\wamp\\phplint...', 4, Array)
+#1 {main}
+</pre></blockquote>
+
+<p>
+FIXME: And what happens accessing a NULL array? See these PHP bugs:
+<a href="https://bugs.php.net/bug.php?id=65484">https://bugs.php.net/bug.php?id=65484</a>,
+
+<a href="https://bugs.php.net/bug.php?id=62769">https://bugs.php.net/bug.php?id=62769</a>.
+</p>
+
+
+
+<h3>NULL mostly always requires a type-cast</h3>
+
+<p>
+<b>NULL should always have a formal type-cast.</b>
+The <b>null</b> type is for internal use only of PHPLint. It has only one
+value: <code>NULL</code>. This value can be assigned to variables of type
+<b>string</b>, <b>array</b>, <b>resource</b> and <b>object</b>.
+</p>
+
+<p>
+PHPLint tries to be smart while parsing the real meaning of a NULL value. For example, by assigning NULL to a variable already known to be a string it guesses that NULL has to be string as well; by returning NULL from a function which is already known to return an object of some class, PHPLint assumes that NULL has to be an object as well.
+But what if the assignment is made to a brand new variable of still unknown type? And what if the returned type from the current function has not been determined yet?
+In these case PHPLint allows to apply a <i>formal type-cast</i> to the NULL in the same way we already seen for the formal type-cast applied to the empty array:
+</p>
+
+<blockquote>
+<pre>
+return <b>/*. (string) .*/</b> NULL;
+</pre>
+</blockquote>
+
+<p>
+Note that, apart the <code>/*. .*/</code> symbols, this formal type-cast
+is similar to a PHP value type-cast, where the type name is enclosed between
+round parenthesis.
+</p>
+
+
+
+<h2>Handling errors</h2>
+
+<p>
+Some functions of the standard library, for example those that normally return
+a resource on success, may return FALSE to indicate an error: these special
+returned values must be checked with the <code>===</code> or the
+<code>!==</code> operators. For example, the <tt>fopen()</tt> function returns
+FALSE if the file cannot be opened for the required operation, so you must
+check for a possible error:
+</p>
+
+<pre>
+
+</pre>
+<table align= center cellspacing=0 cellpadding=5 border=1>
+
+<tr>
+<th>WRONG CODE</th>
+<th>Right code</th>
+</tr>
+
+<tr>
+<td valign=top>
+The <code>!</code> operator cannot be applied<br>
+to a value of the type <b>resource</b>:
+
+<pre>
+if( ! $f = fopen("myFile.txt", "r") ){
+    die("error opening the file");
+}
+</pre>
+</td>
+
+<td valign=top>
+<pre>
+if( ($f = @fopen("myFile.txt", "r")) === FALSE ){
+    die("error opening the file");
+}
+</pre>
+
+or even better:
+
+<pre>
+$f = @fopen("myFile.txt", "r");
+if( $f === FALSE ){
+    die("error opening the file");
+}
+</pre>
+</td>
+</tr>
+
+</table>
+<pre>
+
+</pre>
+
+<div style="margin: 2em; padding: 1em; border: 2px solid black;">
+	<b>Errors must be always explicitly handled.</b> In the examples above
+	the function <tt>fopen()</tt> as any other I/O function could raise errors
+	or warnings or even notices for several reasons. PHPLint knows that and reports a "Warning"
+	for each un-handled error that could be raised at run-time.
+</div>
+
+<p>You have 3 options here:</p>
+
+<ul>
+
+<li>
+<b>Handle the error locally.</b> Any function invocation that may raise error
+must be silenced with the "<tt>@</tt>" operator and the value returned
+by that function MUST be checked each time for possible issues:
+<blockquote><pre>$f = @fopen(...);
+if( $f === FALSE )  die("failed opening");</pre></blockquote>
+</li>
+
+<li>
+<b>Propagate the error to the caller (NOT RECOMMENDED).</b>
+Put the code inside a function and then declare that function as a function
+that may raise errors and/or warnings:
+<blockquote><pre>
+/**
+ * Reads the data.
+ * @return boolean True on success, false on failure.
+ * @triggers E_WARNING Failed accessing the file.
+ */
+function read_data()
+{
+	$f = fopen(...);
+	if( $f === FALSE )  return FALSE;
+	$s = fread(...);
+	if( $s === FALSE )  return FALSE
+	...
+	if( ! fclose() )  return FALSE;
+	return TRUE;
+}
+</pre></blockquote>
+
+or even using the PHPLint meta-code with the same effect:
+
+<blockquote><pre>
+function read_data() /*. triggers E_WARNING .*/
+{
+	$f = fopen(...);
+	if( $f === FALSE )  return FALSE;
+	$s = fread(...);
+	if( $s === FALSE )  return FALSE
+	...
+	if( ! fclose() )  return FALSE
+	return TRUE;
+}
+</pre></blockquote>
+
+Correct detection and handling of each error is then left to your code.
+
+</li>
+
+<li>
+<b>Mapping errors into exceptions.</b> This is the simpler and safer way to program under
+PHP and under PHPLint as well. By including the "magic" <tt>stdlib/errors.php</tt> all the errors (including
+warnings and notices) are thrown as ErrorException; any function of the PHP standard
+library and any function in your program that <tt>trigger_error()</tt> becomes a function
+that may throw ErrorException. Exceptions can be detected, propagated and handled
+in a safe and easy way. For example, our function could blindly
+access the file; if an error occurs, and exception is generated and the control is
+returned back to the caller:
+
+<blockquote><pre>
+require_once __DIR__ . "/stdlib/errors.php";
+
+/**
+ * Reads the data.
+ * @throws ErrorException Failed accessing the file.
+ */
+function read_data()
+{
+	$f = fopen(...);
+	$s = fread(...);
+	fclose();
+}
+</pre></blockquote>
+
+As an alternative, you may want to handle exceptions locally by catching them and
+then returning some special value if something went wrong:
+
+<blockquote><pre>
+require_once __DIR__ . "/stdlib/errors.php";
+
+/**
+ * Reads the data.
+ * @return boolean True on success, false on failure.
+ */
+function read_data()
+{
+	try {
+		$f = fopen(...);
+		$s = fread(...);
+		fclose();
+	}
+	catch(ErrorException $e){
+		error_log("failed accessing the file: $e");
+		return FALSE;
+	}
+	return TRUE;
+}
+</pre></blockquote>
+
+Now its PHP itself that checks for any error condition at runtime: if an error happens,
+the function stops, an exception of type ErrorException is thrown and then returned
+to the caller; the caller, in turn, may or may not handle the exception our read_data()
+function may throw. Note that PHPLint tracks down the propagation of each exception
+through the code, statement by statement and function by function, so any exception
+must be either handled locally or must be propagated to caller.
+</li>
+
+</ul>
+
+
+
+<h2>Classes</h2>
+
+
+<p>
+<b>All the properties of a class MUST be declared.</b>
+Moreover, assign to them a type and/or an initial value.
+As you might guess at this point, providing an initial value lets PHPLint
+to determine its type, otherwise PHPLint relies on annotations or PHP 7.4 type-hint to detect its type. Example:
+</p>
+
+<blockquote>
+<pre>
+class MyClass {
+    public $num = 123;
+    public $arr = array(1, 2, 3);
+	
+    /**
+     * @var string[int]
+     */
+    private $arr2;
+
+    private ? MyClass $related_object; // PHP 7.4 only!
+
+    function __construct($first = "")
+    { $this->arr2 = array($first); }
+}
+</pre>
+</blockquote>
+
+<p>
+Note that the array $arr2 lacks its initial value, so an explicit
+declaration of type is required. Remember that in this case the PHP
+interpreter assigns NULL as initial value.
+</p>
+
+<p>
+Properties cannot be added dynamically at run-time to an object.
+If you need to store a variable number of data inside an object,
+use a property of the type <b>array</b>.
+</p>
+
+
+
+<h2>Other things you should know</h2>
+
+
+
+<h3>PHPLint is case-sensitive</h3>
+
+<p>PHPLint promotes a clean programming style where everything must be written exactly as defined, including:
+namespaces,
+keywords,
+named constants,
+function names,
+class names,
+method names.
+</p>
+
+
+<center>
+<table width="70%" border=1 cellspacing=0 cellpadding=3>
+
+<tr>
+<th>Entity</th>
+<th>PHP</th>
+<th>PHPLint</th>
+</tr>
+
+<tr>
+<td>
+Keywords of the language, as
+<br><tt>const</tt>
+<br><tt>function</tt>
+<br><tt>class</tt>
+<br><tt>if()</tt>
+<br><tt>while()</tt> etc.
+</td>
+<td bgcolor="#ff5">
+Case-insensitive.
+</td>
+<td>
+Case-sensitive.
+</td>
+</tr>
+
+<tr>
+<td>
+Namespaces.
+</td>
+<td bgcolor="#ff5">
+Case-sensitive under Linux,
+<br>case-insensitive under Windows.
+</td>
+<td>
+Case-sensitive.
+</td>
+</tr>
+
+<tr>
+<td>
+Constant names, like in
+<br><tt>const PI=3.14;</tt>
+<br><tt>define("PI", 3.14);</tt>
+</td>
+<td>
+Case-sensitive.
+</td>
+<td>
+Case-sensitive.
+</td>
+</tr>
+
+<tr>
+<td>
+Variables, like <tt>$n = 123;</tt>
+</td>
+<td>
+Case-sensitive.
+</td>
+<td>
+Case-sensitive.
+</td>
+</tr>
+
+<tr>
+<td>
+Function names.
+</td>
+<td bgcolor="#ff5">
+Case-insensitive.
+</td>
+<td>
+Case-sensitive.
+</td>
+</tr>
+
+<tr>
+<td>
+Class names
+</td>
+<td bgcolor="#ff5">
+Case-insensitive.
+</td>
+<td>
+Case-sensitive.
+</td>
+</tr>
+
+<tr>
+<td>
+Methods names
+</td>
+<td bgcolor="#ff5">
+Case-insensitive.
+</td>
+<td>
+Case-sensitive.
+</td>
+</tr>
+
+</table>
+</center>
+
+
+<p>
+PHPLint complains with an "error" if any of such things is written down arbitrarily mixing uppercase and lowercase letters that do not match the definition.
+</p>
+
+<pre>
+
+</pre>
+<table align=center border=1 cellspacing=0 cellpadding=5>
+<tr><th>Good</th><th>BAD - mixing case</th></tr>
+
+<tr><td> <pre>
+use it\icosaedro\bignumbers\BigFloat;
+
+if ( ! isset($_POST['price']) )
+    die("missing 'price' field");
+$s = trim( (string) $_POST['price'] );
+if ( ! BigFloat::isValid($s) )
+    die("invalid syntax in price: $s");
+$price = new BigFloat($s);
+</pre> </td>
+<td style="background-color: #f88"> <pre>
+Use it\icosAedro\BIGnumbers\bigfloat;
+
+If ( ! IsSet($_POST['price']) )
+    Die("missing 'price' field");
+$s = Trim( (String) $_POST['price'] );
+If ( ! bigFloat::isvalid($s) )
+    DIE("invalid syntax in price: $s");
+$price = new BIGfloat($s);
+</pre> </td> </tr>
+</table>
+<pre>
+
+</pre>
+
+
+
+<h3>Declarations first, usage next</h3>
+
+<p>
+Before the code be actually executed, the PHP interpreter scans all its source
+looking for functions, classes and methods, so that they can appear
+in any order. (This is not the case for constants and variables, that must
+be defined and assigned in the order also in PHP).
+</p>
+
+<p>
+By the contrary, PHPLint is a <i>single-pass parser</i>,
+so it needs to read the definitions before the usage.  PHPLint raises an
+error if a function or a class gets used before being defined.  Take care
+to sort your program in a bottom-up order: low-level functions, classes
+and methods first, high-level ones next.
+</p>
+
+<pre>
+
+</pre>
+<table width='70%' align=center border=1 cellspacing=0 cellpadding=5>
+<tr><th>Typical order of the declarations</th></tr>
+<tr><td> <pre>
+&lt;?php
+
+# This package namespace:
+namespace com\mycompany\dbtools;
+
+# Required PHP extensions:
+/*. require_module 'standard'
+    require_module 'session';
+    require_module 'mysqli'; .*/
+
+# Required packages:
+require_once __DIR_ . "/autoload.php";
+require_once __DIR_ . "/Common.php";
+
+# "Use" declarations:
+use com\mycompany\dbtools\DbAbstractionLayer;
+use com\mycompany\dbtools\InputValidator;
+use it\icosaedro\bignumbers\BigFloat;
+
+# Constants:
+const QUERY_MAX_EXECUTION_TIME_MS = 2000;
+
+# Functions and classes:
+...
+
+# Main body of the program:
+...
+</pre> </td> </tr>
+</table>
+<pre>
+
+</pre>
+
+<p>
+The reference manual describes a feature of PHPLint meta-code named "prototypes
+declarations" or even "forward declarations", see chapter <b>Recursive
+declarations</b>. Prototypes can be also used to relax the strict bottom-up
+order of the declarations. The use of this solution should be avoided, and
+prototypes should be restricted to those cases in which the intrinsic recursive
+nature of the declarations requires them (example: function A calls B, and
+function B calls A).
+</p>
+
+
+
+<h3>Constants must be... constant!</h3>
+
+<p>
+PHPLint expects the expression giving the value of a constant be statically
+determinable. In any other case a variable is more appropriate. Moreover,
+some programmers take advantage from the fact that constants "lives" in
+the global namespace, so you can get their value simply writing their name:
+</p>
+
+<blockquote style="background-color: #f88">
+<pre>
+# WRONG CODE:
+define("MY_IMGS", $_SERVER['DOCUMENT_ROOT'] . "/imgs");
+if ( PHP_OS == 'WINNT' )
+    define("ROOT", "C:\\");
+else
+    define("ROOT", "/");
+
+function f()
+{
+    echo "MY_IMGS=", MY_IMGS, " ROOT=", ROOT;
+}
+</pre>
+</blockquote>
+
+<p>
+You should try to submit the code above to PHPLint: it will complain that
+the constant MY_IMGS cannot be statically evaluated, and ROOT is re-defined.
+Since these values are determined at run-time, you should use two
+variables instead:
+</p>
+
+<blockquote>
+<pre>
+# Right code:
+$MY_IMGS = $_SERVER['DOCUMENT_ROOT'] . "/imgs";
+if ( PHP_OS === 'WINNT' )
+    $ROOT = "C:\\";
+else
+    $ROOT = "/";
+
+function f()
+{
+    echo "my_imgs=", $GLOBALS['MY_IMGS'], " root=", $GLOBALS['ROOT'];
+}
+</pre>
+</blockquote>
+
+
+
+
+
+<h3>String comparisons should be made using strcmp()</h3>
+
+<p>
+Never use the weak comparison operators <code>
+&lt; &lt;= == != &gt;= &gt;
+</code>
+with strings, because they are unreliable.
+Apply this simple conversion rule:
+</p>
+
+<blockquote>
+<pre>$a <i>OP</i> $b     ==&gt;    strcmp($a, $b) <i>OP</i> 0</pre>
+</blockquote>
+
+<p>
+where <i>OP</i> is the comparison operator. Use === and !==
+for bite-wise strict equality/inequality comparison.
+</p>
+
+
+
+<h3>Functions must always return only one type of value</h3>
+
+<p>
+ Don't write
+functions that "return the result on success or FALSE on failure" because
+mixing types that are different prevent PHPLint from doing its job and
+make the code harder to read and to debug. Here there is a list of possible
+alternatives:
+</p>
+
+<ul>
+
+<li>
+<b>Throw an exception</b> In any case, exceptions are the only
+practical way to report an error from the constructor of a class, since
+constructors cannot return a value.
+</li>
+
+<li>
+<p>
+<b>Return a special value</b> outside the range of the expected values. For
+example, often the numbers involved in a program are positive values
+accounting for some amount of things, so a negative value can be used
+to indicate an error.  Moreover, in PHPLint the types <code>string array
+object resource</code> and <code>mixed</code> allow <code>NULL</code>
+as a special value.  This table summarizes the typical values used to this
+aim that are also compliant with the type model of PHPLint:
+</p>
+
+<table cellspacing=0 cellpadding=5 border=1 align=center>
+
+<tr>
+<th>Return<br>type</th>
+<th>Value returned on error</th>
+</tr>
+
+<tr>
+<td><code>int</code></td>
+<td>-1, 0 or a negative value</td>
+</tr>
+
+<tr>
+<td><code>float</code></td>
+<td>NAN, INF or a negative value<br>
+(see also is_finite(), is_nan())</td>
+</tr>
+
+<tr>
+<td><code>string</code></td>
+<td>NULL or empty string ""</td>
+</tr>
+
+<tr>
+<td><code>resource</code></td>
+<td>NULL</td>
+</tr>
+
+<tr>
+<td><code>array</code></td>
+<td>NULL</td>
+</tr>
+
+<tr>
+<td><code>object</code></td>
+<td>NULL</td>
+</tr>
+
+</table>
+
+</li>
+
+
+<li>
+<b>Return the result as argument passed by reference</b> and use the value
+returned by the function as indicator of the special condition occurred.
+Often this make the code that detect the error both simpler and more readable:
+
+<table border=0 cellpadding=10 cellspacing=0><tr><td valign=top>
+<pre>
+/**
+ * Traditional "polymorphic" version
+ * @param string $fn
+ * @return <b>string|FALSE</b>
+ */
+function read_data($fn)
+{
+    $f = fopen($fn, "r");
+    if( $f === FALSE )
+        return FALSE;
+    /* here: read $data */
+    return $data;
+}
+
+if(($data = read_data("data.dat")) === FALSE)
+    $data = get_default_data();
+</pre>
+</td><td valign=top>
+<pre>
+/**
+ * PHPLint compliant version
+ * @param string $fn
+ * @param string &amp;$data
+ * @return <b>bool</b>
+ */
+function read_data($fn, <b>/*. return .*/</b> &amp;$data)
+{
+    $f = @fopen($fn, "r");
+    if( $f === FALSE )
+        return FALSE;
+    /* here: read $data */
+    return TRUE;
+}
+
+if( ! read_data("data.dat", $data) )
+    $data = get_default_data();
+</pre>
+</td></tr></table>
+
+</li>
+
+<li>
+<b>Avoid to spread error detection all over the source.</b> Concentrate all the
+"hard" stuff just in one point, and handle every error in the same place were
+it is generated. For example, the function <code>read_data()</code> above might
+return the default data if the file cannot be read:
+
+<blockquote><pre>
+/**
+ * Error resolved internally
+ * @param string $fn
+ * @return string
+ */
+function read_data($fn)
+{
+    $f = @fopen($fn, "r");
+    if( $f === FALSE )
+        return get_default_data();
+    /* here: read $data */
+    return $data;
+}
+
+$data = read_data("data.dat");
+</pre></blockquote>
+
+</li>
+
+<li>
+<b>Avoid error conditions at all.</b> Rather that raise an error, give a
+meaning also to special conditions, since often this will extend the generality
+of the code and reduce the complexity of the error handling. For example, this
+function returns the last character of the string, but if the string is NULL or
+empty "" it returns NULL or "" respectively rather than an error:
+
+<blockquote><pre>
+function last_char_of(/*. string .*/ $s)
+{
+    $l = strlen($s);
+    if( $l == 0 )  return $s;
+    return substr($s, $l-1);
+}
+</pre></blockquote>
+
+</li>
+
+</ul>
+
+
+
+
+<h3>Do not mix elements of different types in arrays</h3>
+
+<p>
+For example, this table mixes strings, numbers and boolean values:
+</p>
+
+<blockquote>
+<pre>
+# WRONG:
+$people = array(
+#   Name    Age   Married
+    "Gery",  34,   FALSE,
+    "Sara",  23,   TRUE,
+    "John",  56,   TRUE);
+
+echo "Married persons younger than 30: ";
+for($i = 0; $i &lt; count($people); $i += 3)
+    if( $people[$i+2] and $people[$i+1] &lt; 30 )
+        echo $people[$i], " ";
+</pre>
+</blockquote>
+
+<p>
+PHPLint cannot parse effectively such a code, and neither humans can
+understand it very well. The solution to the problem requires to introduce a
+class <code>Person</code> where all the data about a person are stored. The
+resulting code might look similar to this one, that can be validated
+by PHPLint:
+</p>
+
+<blockquote>
+<pre>
+# Right:
+class Person {
+    public /*. string .*/ $name;
+    public $age = 0;
+    public $married = FALSE;
+
+    function __construct(/*. string .*/ $name, /*. int .*/ $age, /*. bool .*/ $married)
+    {
+        $this-&gt;name = $name;
+        $this-&gt;age  = $age;
+        $this-&gt;married = $married;
+    }
+}
+
+$people = array(
+    new Person("Gery",  34,   FALSE),
+    new Person("Sara",  23,   TRUE),
+    new Person("John",  56,   FALSE)
+);
+
+echo "Married persons younger than 30: ";
+foreach($people as $p)
+    if( $p-&gt;married and $p-&gt;age &lt; 30 )
+        echo $p-&gt;name, " ";
+</pre>
+</blockquote>
+
+<p>
+Ok, I agree: this second version of the same program is longer, but the
+first one remembers to me the old times of the BASIC when the arrays were
+the only data structure available. Moreover, trying the first example while
+writing this document, I made a mistake with the offset of the index and
+the program did not work properly; the second version, instead, worked
+perfectly just at the first run.
+</p>
+
+
+
+
+<h3>Proper usage of ini_get()</h3>
+
+<p>
+Sometimes programs need to check at run-time their configuration file
+<code>php.ini</code> for some parameter.  All the parameters declared
+here are available through the function <code>ini_get($param)</code> where
+<code>$param</code> is the name of the parameter. The value returned by this
+function is always a string or the NULL value. For those parameters that
+are simple flags, the value returned is the empty string <code>""</code> or
+<code>"0"</code> for FALSE/No/Off, and <code>"1"</code> for TRUE/Yes/On. The
+other parameters return a string, although they can be actually numbers. The
+right way to handle this in PHPLint is shown in the following examples,
+that may be useful in actual applications:
+</p>
+
+<pre>
+
+</pre>
+<blockquote>
+<pre>
+if( ini_get("magic_quotes_gpc") === "1"
+or  ini_get("magic_quotes_runtime") === "1")
+    exit("ERROR: please disable magic quotes in php.ini");
+
+if( ini_get("file_uploads") !== "1" )
+    exit("ERROR: please enable file upload in php.ini");
+
+
+/**
+ *  Converts size in bytes, possibly with scale factor.
+ *  Converts a numeric value from the php.ini, possibly
+ *  containing some scale factors as K, M and G.
+ *  Example taken from the PHP manual.
+ *  @param string $s  Encode size in bytes, possibly with scale factor.
+ *  @return int  Number of bytes.
+ */
+function return_bytes($s)
+{
+    $v = (int) $s;
+    $last = strtolower($s[strlen($s)-1]);
+    switch($last) {
+        // The 'G' modifier is available since PHP 5.1.0
+        case 'g': $v *= 1024;  <b>/*. missing_break; .*/</b>
+        case 'm': $v *= 1024;  <b>/*. missing_break; .*/</b>
+        case 'k': $v *= 1024;  <b>/*. missing_break; .*/</b>
+        <b>/*. missing_default: .*/</b>
+    }
+    return $v;
+}
+
+$upload_max_filesize =
+    return_bytes( trim( ini_get("upload_max_filesize" ) ) );
+$post_max_size =
+    return_bytes( trim( ini_get("post_max_size" ) ) );
+$max_upload = min($upload_max_filesize, $post_max_size);
+echo "Max uploadable file size is $max_upload bytes.";
+</pre>
+</blockquote>
+<pre>
+
+</pre>
+
+
+
+
+
+
+<h3>Do not use each() and list() to assign a list of variables</h3>
+
+<p>
+PHP allows the special syntax <code>list($x,$y)=EXPR;</code>
+where <code>EXPR</code> is an expression generating an array,
+typically the value returned from a function or the special
+language construct <code>each()</code>. Never use these syntaxes,
+because PHPLint cannot determine the types of the values $x and $y.
+Rather, assign to an array, then use the resulting elements.
+</p>
+<pre>
+
+</pre>
+<table align=center cellspacing=0 cellpadding=5 border=1>
+
+<tr>
+<th>WRONG CODE</th>
+<th>Right code</th>
+</tr>
+
+<tr>
+<td valign=top>
+<pre>
+$a = array(1, 2, 3);
+
+reset($a);
+while( list($k, $v) = each($a) ){
+    echo $k, $v;
+}
+</pre>
+</td>
+
+<td valign=top>
+<pre>
+$a = array(1, 2, 3);
+
+foreach( $a as $k => $v ){
+    echo $k, $v;
+}
+</pre>
+</td>
+</tr>
+
+</table>
+<pre>
+
+</pre>
+
+
+<p>
+For example, this function may be useful to measure with precision
+the time elapsed:
+</p>
+
+<blockquote>
+<pre>
+function elapsed($a)
+{
+    $b = microtime();
+    list($b_dec, $b_sec) = explode(" ", $b);
+    list($a_dec, $a_sec) = explode(" ", $a);
+    return ((float)$b_sec - (float)$a_sec)
+        + ((float)$b_dec - (float)$a_dec);
+}
+
+$start = (string) microtime();
+/**** here do something time-consuming ****/
+$e = elapsed($start);
+if( $e &gt; 1.0 )  echo "WARNING: elapsed time $e s";
+</pre>
+</blockquote>
+
+<p>
+Note the presence of two <code>list()</code> constructs. That code
+can be easily converted to the following PHPLint-compliant code, where
+the result of the <code>explode()</code> function is assigned to
+two arrays; some meta-code was also added:
+</p>
+
+<blockquote>
+<pre>
+<b>/*.float.*/</b> function elapsed(<b>/*.string.*/</b> $start)
+{
+    $a = explode(" ", $start);
+    $b = explode(" ", (string) microtime());
+    return ((float)$b[1] - (float)$a[1])
+        + ((float)$b[0] - (float)$a[0]);
+}
+</pre>
+</blockquote>
+
+
+
+
+<h3>die() is a statement, not a function!</h3>
+
+<p>
+This syntax is invalid:
+</p>
+
+<blockquote><code>$f = fopen(...) or die(...);</code></blockquote>
+
+<p>
+because <code>die()</code> does not return a <b>boolean</b> value (actually, it
+does not return anything at all). Use the longer form we shown above. The same
+holds for <code>exit()</code>, actually a synonym of <code>die()</code>.
+</p>
+
+
+
+
+<h3>Do not use "variable name" classes</h3>
+
+<p>
+For example
+</p>
+
+<blockquote><code>$obj = new $class();</code></blockquote>
+
+<p>
+because <code>$class</code> might be any string, without any relation
+with the known classes; this source is difficult to understand for the
+human reader of the source, and impossible to check at all for PHPLint.
+Consider to use an abstract class instead. PHP 5 also introduced the
+interfaces, intended just to address elegantly these problems. Adding these
+"glue-classes" makes the code more readable and PHPLint helps to
+keep the complexity under control.
+</p>
+
+<p>
+Returning to the example above, if $obj has to be an instance of some class
+dynamically determined at run-time, certainly these classes are in some way
+related, i.e. them exhibit the same interface. This interface (i.e. a common
+set of constants, properties and methods) will be used in the following code.
+Two classes that share the same interface must have a common ancestor,
+that may be an <code>abstract class</code> or an <code>interface</code>.
+The example below illustrates this scheme:
+</p>
+
+<pre>
+    interface Ancestor {
+        function doThis();
+        function doThat();
+    }
+
+    class ConcreteClass1 implements Ancestor {
+        public function doThis() { /* ...implementation... */ }
+        public function doThat() { /* ...implementation... */ }
+    }
+
+    class ConcreteClass2 implements Ancestor {
+        public function doThis() { /* ...implementation... */ }
+        public function doThat() { /* ...implementation... */ }
+    }
+
+    # Declare the variable $obj to be a generic Ancestor.
+    # This says to PHPLint that $obj is an object that
+    # implements "Ancestor":
+    $obj = /*. (Ancestor) .*/ NULL;
+
+    if( we_need_ConcreteClass1 )
+        $obj = new ConcreteClass1();
+    else /* we need ConcreteClass2 instead */
+        $obj = new ConcreteClass2();
+
+    # Now we can use $obj according to the interface as specified
+    # for Ancestor, whichever its actual implementation may be:
+    $obj-&gt;doThis();
+    $obj-&gt;doThat();
+
+    # The same strategy can be used also inside the functions:
+    function doThisAndThat(/*. Ancestor .*/ $obj)
+    {
+        $obj-&gt;doThis();
+        $obj-&gt;doThat();
+    }
+
+    doThisAndThat($obj);
+</pre>
+
+
+<p>
+The advantage of using abstract classes and interfaces is that the PHP
+interpreter, the PHPLint validator and humans reading the source can
+understand the meaning of the source and detect possible violations of the
+"contract" rules in the extended and implemented classes.
+</p>
+
+
+
+
+
+
+
+
+<h2>Advanced topics</h2>
+
+
+
+<h3>Function signature with PHPLint meta-code</h3>
+
+<p>
+DocBlocks apart, PHPLint also understands another kind of annotations that is shorter
+and that may be preferable in some cases, for example for little private
+functions that do not really need to be documented in detail.
+These special annotations are name "PHPLint meta-code", and are again
+multi-line comments <code>/*. .*/</code> surrounding the PHPLint meta-code.
+We have already seen these special comment at the beginning of this document,
+used for the <code>require_module</code> meta-code statement:
+</p>
+
+<blockquote>
+<pre>
+&lt;?php
+
+<b>/*. require_module 'standard'; .*/</b>
+
+<b>/*. string .*/</b> function get_param(<b>/*. string .*/</b> $name, $max_len=20)
+{
+    if( ! isset( $_REQUEST[$name] ) )
+        return NULL;
+    $s = (string) $_REQUEST[$name];
+    if( strlen($s) &gt; $max_len )
+        $s = substr($s, $max_len);
+    return $s;
+}
+
+?&gt;
+</pre>
+</blockquote>
+
+<p>
+Note that this time
+the argument <code>$max_len</code> does not require a type, since its
+initial value already provides to PHPLint the correct answer: <b>int</b>.
+Although in DocBlocks usually all the parameters are listed in order to
+describe their meaning in detail, from the point of view of PHPLint
+<i>the parameters that have a default value can be omitted</i> because the type
+is exactly the type of the default value assigned.
+</p>
+
+<hr>
+
+</BODY></HTML>

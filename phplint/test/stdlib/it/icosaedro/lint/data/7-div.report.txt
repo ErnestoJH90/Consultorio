@@ -1,0 +1,163 @@
+BEGIN parsing of 7-div.php
+1:	<?php
+2:	if( 6/2 ); // int(3)
+
+	if( 6/2 ); // int(3)
+	         \_ HERE
+==== 2: ERROR: found expression of type int, expected type is boolean. Remember that 0 evaluates to FALSE, and any other integer value evaluates to TRUE.
+3:	
+4:	if( 5/2 ); // float(2.5)
+
+	if( 5/2 ); // float(2.5)
+	         \_ HERE
+==== 4: ERROR: found expression of type float, expected type is boolean. Remember that 0.0 evaluates to FALSE and any other value evaluates to TRUE.
+5:	
+6:	const C_int = 6/2;
+7:	if( C_int ); // int
+
+	if( C_int ); // int
+	           \_ HERE
+==== 7: ERROR: found expression of type int, expected type is boolean. Remember that 0 evaluates to FALSE, and any other integer value evaluates to TRUE.
+8:	
+9:	const C_float = 5/2;
+10:	if( C_float ); // float
+
+	if( C_float ); // float
+	             \_ HERE
+==== 10: ERROR: found expression of type float, expected type is boolean. Remember that 0.0 evaluates to FALSE and any other value evaluates to TRUE.
+11:	
+12:	$i = 6;
+13:	if( $i / 2 ); // mixed
+
+	if( $i / 2 ); // mixed
+	            \_ HERE
+==== 13: notice: division between int could result into either int or float depending on the specific run-time values, so mixed is assumed; either apply an (int) or (float) type-cast to the result, or convert one of the two values to float to get the expected numeric type
+
+	if( $i / 2 ); // mixed
+	            \_ HERE
+==== 13: ERROR: found expression of type mixed, expected type is boolean
+14:	if( 2 / $i ); // mixed
+
+	if( 2 / $i ); // mixed
+	            \_ HERE
+==== 14: notice: division between int could result into either int or float depending on the specific run-time values, so mixed is assumed; either apply an (int) or (float) type-cast to the result, or convert one of the two values to float to get the expected numeric type
+
+	if( 2 / $i ); // mixed
+	            \_ HERE
+==== 14: ERROR: found expression of type mixed, expected type is boolean
+15:	
+16:	$x = 3.14;
+17:	if( $x / 2 ); // float
+
+	if( $x / 2 ); // float
+	            \_ HERE
+==== 17: ERROR: found expression of type float, expected type is boolean. Remember that 0.0 evaluates to FALSE and any other value evaluates to TRUE.
+18:	if( 2 / $x ); // float
+
+	if( 2 / $x ); // float
+	            \_ HERE
+==== 18: ERROR: found expression of type float, expected type is boolean. Remember that 0.0 evaluates to FALSE and any other value evaluates to TRUE.
+19:	if( $x / $x ); // float
+
+	if( $x / $x ); // float
+	             \_ HERE
+==== 19: ERROR: found expression of type float, expected type is boolean. Remember that 0.0 evaluates to FALSE and any other value evaluates to TRUE.
+20:	
+21:	echo 5/0; // error
+
+	echo 5/0; // error
+	         \_ HERE
+==== 21: ERROR: division by zero
+22:	echo 5/0.0; // error
+
+	echo 5/0.0; // error
+	           \_ HERE
+==== 22: ERROR: division by zero
+23:	
+24:	if( (int) ($i / $i) ); // int
+
+	if( (int) ($i / $i) ); // int
+	                   \_ HERE
+==== 24: notice: division between int could result into either int or float depending on the specific run-time values, so mixed is assumed; either apply an (int) or (float) type-cast to the result, or convert one of the two values to float to get the expected numeric type
+
+	if( (int) ($i / $i) ); // int
+	                     \_ HERE
+==== 24: ERROR: found expression of type int, expected type is boolean. Remember that 0 evaluates to FALSE, and any other integer value evaluates to TRUE.
+25:	if( (float) ($i / $i) ); // float
+
+	if( (float) ($i / $i) ); // float
+	                     \_ HERE
+==== 25: notice: division between int could result into either int or float depending on the specific run-time values, so mixed is assumed; either apply an (int) or (float) type-cast to the result, or convert one of the two values to float to get the expected numeric type
+
+	if( (float) ($i / $i) ); // float
+	                       \_ HERE
+==== 25: ERROR: found expression of type float, expected type is boolean. Remember that 0.0 evaluates to FALSE and any other value evaluates to TRUE.
+26:	if( (int) ($i / $x) ); // int
+
+	if( (int) ($i / $x) ); // int
+	                     \_ HERE
+==== 26: ERROR: found expression of type int, expected type is boolean. Remember that 0 evaluates to FALSE, and any other integer value evaluates to TRUE.
+27:	if( $i / $x ); // float
+
+	if( $i / $x ); // float
+	             \_ HERE
+==== 27: ERROR: found expression of type float, expected type is boolean. Remember that 0.0 evaluates to FALSE and any other value evaluates to TRUE.
+28:	
+29:	// check evaluation:
+30:	if( 6/2 == 3 ) // true
+31:		$defined1 = 0;
+32:	echo $defined1;
+33:	if( 6/(-2) == -3 ) // true
+34:		$defined2 = 0;
+35:	echo $defined2;
+36:	if( 5/2 == 2.5 ) // true
+
+	if( 5/2 == 2.5 ) // true
+	              \_ HERE
+==== 36: notice: comparison by equality/inequality between float numbers. Remember that float numbers have limited precision, and that expressions algebrically equivalent might give different results. For example, 0.57-0.56==0.1 would give FALSE.
+37:		$defined3 = 0;
+38:	echo $defined3;
+39:	if( 5/(-2) == -2.5 ) // true
+
+	if( 5/(-2) == -2.5 ) // true
+	               \_ HERE
+==== 39: notice: comparison by equality/inequality between float numbers. Remember that float numbers have limited precision, and that expressions algebrically equivalent might give different results. For example, 0.57-0.56==0.1 would give FALSE.
+40:		$defined4 = 0;
+41:	echo $defined4;
+42:	
+43:	
+44:	function f(/*. float .*/ $f)
+45:	{ echo $f; }
+46:	
+47:	f(2); // error
+
+	f(2); // error
+	    \_ HERE
+==== 47: ERROR: calling f declared in line 44, argument no. 1: found type int is not assignment compatible with $f of type float
+48:	f(3.14); // ok
+49:	f((float) 2); // ok
+50:	
+51:	$i = 1;
+52:	if( $i /= 1 );
+
+	if( $i /= 1 );
+	             \_ HERE
+==== 52: ERROR: (int) /= (int): expression could result either int or float at run-time (PHPLint restriction)
+53:	if( $i /= 1.0 );
+
+	if( $i /= 1.0 );
+	               \_ HERE
+==== 53: ERROR: (int) /= (float): expression gives float
+54:	$f = 1.0;
+55:	if( $f /= 1 );
+
+	if( $f /= 1 );
+	             \_ HERE
+==== 55: ERROR: found expression of type float, expected type is boolean. Remember that 0.0 evaluates to FALSE and any other value evaluates to TRUE.
+56:	if( $f /= 1.0 );
+
+	if( $f /= 1.0 );
+	               \_ HERE
+==== 56: ERROR: found expression of type float, expected type is boolean. Remember that 0.0 evaluates to FALSE and any other value evaluates to TRUE.
+END parsing of 7-div.php
+Overall test results: 20 errors, 0 warnings.
