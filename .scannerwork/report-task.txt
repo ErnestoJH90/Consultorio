@@ -1,6 +1,6 @@
-projectKey=citas
+projectKey=Consultorio
 serverUrl=http://localhost:9000
-serverVersion=6.7.4.38452
-dashboardUrl=http://localhost:9000/dashboard/index/citas
-ceTaskId=AWrlFBFetnlMFdtApYX_
-ceTaskUrl=http://localhost:9000/api/ce/task?id=AWrlFBFetnlMFdtApYX_
+serverVersion=9.1.0.47736
+dashboardUrl=http://localhost:9000/dashboard?id=Consultorio
+ceTaskId=AXykZTv4o38KnFC2TXoy
+ceTaskUrl=http://localhost:9000/api/ce/task?id=AXykZTv4o38KnFC2TXoy
